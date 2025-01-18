@@ -8,7 +8,13 @@ body {
     font: 100%/1.5 system-ui;
     box-sizing: border-box;
   }
-
+h1{
+    font-size: 400%;
+}
+h1,h2,h3,h4,h5{
+    text-align: center;
+    line-height: 1.1;
+}
 form {
     display: grid; /* Enable grid layout on the form */
     grid-template-columns: 1fr 2fr; 
