@@ -26,6 +26,8 @@ let pages = [
 let nav = document.createElement('nav');
 document.body.prepend(nav);
 
+console.log('Nav element:', nav);
+console.log('Pages array:', pages);
 for (let p of pages) {
   let url = p.url;
   let title = p.title;
