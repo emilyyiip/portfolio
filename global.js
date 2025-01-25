@@ -1,3 +1,5 @@
+console.log("Hello, world!");
+
 console.log('IT’S ALIVE!');
 
 // Helper function to select multiple elements
