@@ -23,6 +23,7 @@ let pages = [
   { url: 'projects/index.html', title: 'Projects' },
   { url: 'contact/index.html', title: 'Contact' },
   { url: 'resume/index.html', title: 'Resume' },
+  { url: 'https://github.com/emilyyiip', title: 'Github' },
 ];
 
 let nav = document.createElement('nav');
