@@ -68,42 +68,7 @@ document.body.insertAdjacentHTML(
     </select>
   </label>`
 );
-
 // Function to apply the theme
-function applyTheme(theme) {
-  const root = document.documentElement;
-
-  // Reset all classes (light, dark) and apply the new theme
-  root.classList.remove('light', 'dark');
-  if (theme === 'light') {
-    root.classList.add('light');
-  } else if (theme === 'dark') {
-    root.classList.add('dark');
-  }
-
-  // Save the user's selection in localStorage
-  localStorage.setItem('theme', theme);
-}
-
-// Detect the system theme and apply it (for "auto" mode)
-function detectSystemTheme() {
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-}
-
-// Initialize the theme based on the saved preference or system default
-const savedTheme = localStorage.getItem('theme') || 'auto';
-applyTheme(savedTheme === 'auto' ? detectSystemTheme() : savedTheme);
-
-// Listen for dropdown changes
-document.getElementById('theme-switcher').addEventListener('change', (event) => {
-  const theme = event.target.value;
-  applyTheme(theme === 'auto' ? detectSystemTheme() : theme);
-});
-
-// Select the theme dropdown
-const themeSwitcher = document.getElementById('theme-switcher');
-
-// Apply the selected theme
 function applyTheme(theme) {
   const root = document.documentElement; // Reference to the <html> element
 
@@ -120,18 +85,21 @@ function applyTheme(theme) {
   // Save the user preference in localStorage
   localStorage.setItem('colorScheme', theme);
 }
+// Detect the system theme and apply it (for "auto" mode)
+function detectSystemTheme() {
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+// Initialize the theme based on the saved preference or system default
+const savedTheme = localStorage.getItem('colorScheme') || 'auto';
+applyTheme(savedTheme === 'auto' ? detectSystemTheme() : savedTheme);
+
+// Update the dropdown to reflect the saved preference
+const themeSwitcher = document.getElementById('theme-switcher');
+themeSwitcher.value = savedTheme;
 
 // Listen for dropdown changes
 themeSwitcher.addEventListener('change', (event) => {
-  const theme = event.target.value; // Get the selected theme
-  applyTheme(theme);
+  const theme = event.target.value;
+  applyTheme(theme === 'auto' ? detectSystemTheme() : theme);
 });
-
-// Check localStorage for a saved preference when the page loads
-savedTheme = localStorage.getItem('colorScheme') || 'auto'; // Default to "auto" if no preference is saved
-applyTheme(savedTheme);
-
-// Update the dropdown to reflect the saved preference
-themeSwitcher.value = savedTheme;
-
-
