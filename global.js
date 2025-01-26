@@ -45,7 +45,7 @@ pages.forEach((page) => {
   li.appendChild(a); // Append <a> to <li>
   ul.appendChild(li); // Append <li> to <ul>
 
-  console.log(a.host)
+  console.log(a)
   if(a.host != location.host){
     console.log("not same" + a.host)
     a.target = "_blank";
