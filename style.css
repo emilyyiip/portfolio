@@ -72,8 +72,7 @@ nav ul li a {
     text-decoration: none;
 }
 nav ul li a:hover {
-    background-color: red;
-    /*var(--background-hover)*/;
+    background-color: var(--background-hover);
 }
 
 
