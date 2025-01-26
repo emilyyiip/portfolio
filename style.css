@@ -81,3 +81,43 @@ nav ul li a:hover {
     gap: 1em; /* Optional: Adds spacing between grid items */
 }
 
+/* Apply light/dark color scheme to the root element */
+:root {
+    color-scheme: light dark;
+  }
+  
+  /* Light Mode Specific Styles */
+  :root.light {
+    --border-color: oklch(80% 3% 200);
+    --background-hover: oklch(95% 5% 200);
+  }
+  
+  /* Dark Mode Specific Styles */
+  :root.dark {
+    --border-color: oklch(50% 10% 200 / 40%);
+    --background-hover: color-mix(in oklch, var(--color-accent), canvas 85%);
+  }
+  
+  /* Default Styles for All Modes */
+  nav {
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  nav a:hover {
+    background-color: var(--background-hover);
+  }
+  
+  /* Style for the theme switcher */
+  .color-scheme {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 80%;
+    font-family: inherit;
+  }
+  
+  .color-scheme select {
+    margin-left: 0.5rem;
+  }
+  
+

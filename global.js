@@ -53,3 +53,50 @@ pages.forEach((page) => {
 });
 
 console.log('Navigation menu created:', nav);
+
+// Dropdown
+// Insert the theme switcher at the top of the body
+document.body.insertAdjacentHTML(
+  'afterbegin',
+  `
+  <label class="color-scheme">
+    Theme:
+    <select id="theme-switcher">
+      <option value="auto" selected>Automatic</option>
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+    </select>
+  </label>`
+);
+
+// Function to apply the theme
+function applyTheme(theme) {
+  const root = document.documentElement;
+
+  // Reset all classes (light, dark) and apply the new theme
+  root.classList.remove('light', 'dark');
+  if (theme === 'light') {
+    root.classList.add('light');
+  } else if (theme === 'dark') {
+    root.classList.add('dark');
+  }
+
+  // Save the user's selection in localStorage
+  localStorage.setItem('theme', theme);
+}
+
+// Detect the system theme and apply it (for "auto" mode)
+function detectSystemTheme() {
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+// Initialize the theme based on the saved preference or system default
+const savedTheme = localStorage.getItem('theme') || 'auto';
+applyTheme(savedTheme === 'auto' ? detectSystemTheme() : savedTheme);
+
+// Listen for dropdown changes
+document.getElementById('theme-switcher').addEventListener('change', (event) => {
+  const theme = event.target.value;
+  applyTheme(theme === 'auto' ? detectSystemTheme() : theme);
+});
+
