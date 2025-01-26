@@ -100,3 +100,38 @@ document.getElementById('theme-switcher').addEventListener('change', (event) => 
   applyTheme(theme === 'auto' ? detectSystemTheme() : theme);
 });
 
+// Select the theme dropdown
+const themeSwitcher = document.getElementById('theme-switcher');
+
+// Apply the selected theme
+function applyTheme(theme) {
+  const root = document.documentElement; // Reference to the <html> element
+
+  // Remove existing theme classes
+  root.classList.remove('light', 'dark');
+
+  // Apply the selected theme
+  if (theme === 'light') {
+    root.classList.add('light');
+  } else if (theme === 'dark') {
+    root.classList.add('dark');
+  }
+
+  // Save the user preference in localStorage
+  localStorage.setItem('colorScheme', theme);
+}
+
+// Listen for dropdown changes
+themeSwitcher.addEventListener('change', (event) => {
+  const theme = event.target.value; // Get the selected theme
+  applyTheme(theme);
+});
+
+// Check localStorage for a saved preference when the page loads
+savedTheme = localStorage.getItem('colorScheme') || 'auto'; // Default to "auto" if no preference is saved
+applyTheme(savedTheme);
+
+// Update the dropdown to reflect the saved preference
+themeSwitcher.value = savedTheme;
+
+

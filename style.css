@@ -75,7 +75,6 @@ nav ul li a:hover {
     background-color: var(--background-hover);
 }
 
-
 .projects {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(15em, 1fr));
@@ -85,26 +84,24 @@ nav ul li a:hover {
 /* Apply light/dark color scheme to the root element */
 :root {
     color-scheme: light dark;
-    --border-color: oklch(80% 3% 200);
-    --background-hover: oklch(95% 5% 200);
+    --border-color: oklch(50% 10% 200 / 40%); /* Adjusted for both light and dark modes */
+    --background-hover: color-mix(in oklch, var(--color-accent), canvas 85%); /* Adjusted hover color */
 }
 
 /* Light Mode Specific Styles */
 :root.light {
     background-color: white; /* Add this for light mode */
     color: black; /* Ensure text is legible */
-    border-bottom-color: oklch(80% 3% 200);
-    --border-color: oklch(80% 3% 200);
-    --background-hover: oklch(95% 5% 200);
+    --border-color: oklch(80% 3% 200); /* Subtle light mode border */
+    --background-hover: oklch(95% 5% 200); /* Subtle light mode hover */
 }
 
 /* Dark Mode Specific Styles */
 :root.dark {
     background-color: black; /* Add this for dark mode */
     color: white; /* Ensure text is legible */
-    --border-color: oklch(50% 10% 200 / 40%);
-    border-bottom-color: oklch(50% 10% 200 / 40%);
-    --background-hover: color-mix(in oklch, var(--color-accent), canvas 85%);
+    --border-color: oklch(50% 10% 200 / 40%); /* Vibrant dark mode border */
+    --background-hover: color-mix(in oklch, var(--color-accent), canvas 85%); /* Enhanced dark mode hover */
 }
 
 /* Default Styles for All Modes */
@@ -128,3 +125,4 @@ nav a:hover {
 .color-scheme select {
     margin-left: 0.5rem;
 }
+
