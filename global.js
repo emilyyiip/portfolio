@@ -39,6 +39,8 @@ pages.forEach((page) => {
   if (!IS_HOMEPAGE && !url.startsWith('http')) {
     url = './' + url; // Use relative paths starting with './' to avoid issues
   }
+  console.log('Generated URL:', url);
+
 
   a.href = url; // Set the href attribute
   a.textContent = page.title; // Set the text content
