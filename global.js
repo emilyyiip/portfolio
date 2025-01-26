@@ -13,9 +13,9 @@ const IS_HOMEPAGE = document.documentElement.classList.contains('home');
 // Page links
 const pages = [
   { url: 'index.html', title: 'Home' },
-  { url: 'portfolio/projects/index.html', title: 'Projects' },
-  { url: 'portfolio/contact/index.html', title: 'Contact' },
-  { url: 'portfolio/resume/index.html', title: 'Resume' },
+  { url: 'projects/index.html', title: 'Projects' },
+  { url: 'contact/index.html', title: 'Contact' },
+  { url: 'resume/index.html', title: 'Resume' },
   { url: 'https://github.com/emilyyiip', title: 'GitHub' },
 ];
 
