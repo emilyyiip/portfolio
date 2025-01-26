@@ -44,6 +44,10 @@ pages.forEach((page) => {
 
   li.appendChild(a); // Append <a> to <li>
   ul.appendChild(li); // Append <li> to <ul>
+
+  if(a.host != location.host){
+    a.target = "_blank";
+  }
 });
 
 console.log('Navigation menu created:', nav);
