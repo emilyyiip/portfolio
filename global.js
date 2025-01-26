@@ -26,12 +26,19 @@ let pages = [
 ];
 
 let nav = document.createElement('nav');
-document.body.prepend(nav);
+let ul = document.createElement('ul'); // Create a <ul> element
+nav.appendChild(ul); // Add <ul> to the <nav>
+document.body.prepend(nav); // Add <nav> to the body
 
 console.log('Nav element:', nav);
 console.log('Pages array:', pages);
+
+// Create <li> and <a> elements for each page
 for (let p of pages) {
-  let url = p.url;
-  let title = p.title;
-  nav.insertAdjacentHTML('beforeend', `<a href="${url}">${title}</a>`);
+  let li = document.createElement('li'); // Create a <li> element
+  let a = document.createElement('a'); // Create an <a> element
+  a.href = p.url; // Set the href attribute
+  a.textContent = p.title; // Set the text content
+  li.appendChild(a); // Add <a> to <li>
+  ul.appendChild(li); // Add <li> to <ul>
 }
