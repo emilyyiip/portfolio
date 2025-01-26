@@ -6,9 +6,8 @@ console.log("IT’S ALIVE!");
 function $$(selector, context = document) {
   return Array.from(context.querySelectorAll(selector));
 }
-
 // Check if we are on the homepage
-const IS_HOMEPAGE = document.documentElement.classList.contains('home');
+const ARE_WE_HOME = document.documentElement.classList.contains('home');
 
 // Page links
 const pages = [
@@ -19,39 +18,32 @@ const pages = [
   { url: 'https://github.com/emilyyiip', title: 'GitHub' },
 ];
 
-console.log('Pages array:', pages);
-
 // Create the navigation menu
 const nav = document.createElement('nav');
 const ul = document.createElement('ul'); // Create a <ul> element
-nav.appendChild(ul); // Add <ul> to the <nav>
+nav.appendChild(ul); // Add <ul> to <nav>
 document.body.prepend(nav); // Add <nav> to the body
 
-console.log('Nav element created:', nav);
-
-// Create <li> and <a> elements for each page
+// Generate links
 pages.forEach((page) => {
-  const li = document.createElement('li'); // Create a <li> element
-  const a = document.createElement('a'); // Create an <a> element
+  const li = document.createElement('li'); // Create <li>
+  const a = document.createElement('a'); // Create <a>
 
-  // Adjust the URL if not on the homepage and it's not an absolute URL
+  // Adjust URL if not on homepage and it's not an absolute URL
   let url = page.url;
-  if (!IS_HOMEPAGE && !url.startsWith('http')) {
-    url = './' + url; // Use relative paths starting with './' to avoid issues
-  }
-  console.log('Generated URL:', url);
+  url = !ARE_WE_HOME && !url.startsWith('http') ? '../' + url : url;
 
+  // Set href and text
+  a.href = url;
+  a.textContent = page.title;
 
-  a.href = url; // Set the href attribute
-  a.textContent = page.title; // Set the text content
-
-  // Add the 'current' class if this is the current page
+  // Highlight the current page
   if (location.pathname.endsWith(page.url)) {
     a.classList.add('current');
   }
 
-  li.appendChild(a); // Add <a> to <li>
-  ul.appendChild(li); // Add <li> to <ul>
+  li.appendChild(a); // Append <a> to <li>
+  ul.appendChild(li); // Append <li> to <ul>
 });
 
-console.log('Navigation menu created successfully');
+console.log('Navigation menu created:', nav);
