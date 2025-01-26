@@ -90,20 +90,20 @@ nav ul li a:hover {
 
 /* Light Mode Specific Styles */
 :root.light {
-    --border-color: oklch(80% 3% 200);
-    --background-hover: oklch(95% 5% 200);
     background-color: white; /* Add this for light mode */
     color: black; /* Ensure text is legible */
     border-bottom-color: oklch(80% 3% 200);
+    --border-color: oklch(80% 3% 200);
+    --background-hover: oklch(95% 5% 200);
 }
 
 /* Dark Mode Specific Styles */
 :root.dark {
+    background-color: black; /* Add this for dark mode */
+    color: white; /* Ensure text is legible */
     --border-color: oklch(50% 10% 200 / 40%);
     border-bottom-color: oklch(50% 10% 200 / 40%);
     --background-hover: color-mix(in oklch, var(--color-accent), canvas 85%);
-    background-color: black; /* Add this for dark mode */
-    color: white; /* Ensure text is legible */
 }
 
 /* Default Styles for All Modes */
