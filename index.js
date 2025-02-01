@@ -16,8 +16,6 @@ async function loadLatestProjects() {
 }
 window.addEventListener('DOMContentLoaded', loadLatestProjects);
 
-import { fetchJSON, renderProjects, fetchGitHubData } from './global.js';
-
 async function loadGitHubProfile() {
     const githubData = await fetchGitHubData('emilyyiip');
 
