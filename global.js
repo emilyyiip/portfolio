@@ -114,28 +114,24 @@ document.querySelectorAll('.projects > article').forEach((a) => {
   console.log({ title, image, description });  // Log the result to the console
 });
 
-// Function to fetch and parse project data from a JSON file
 export async function fetchJSON(url) {
   try {
-      // Fetch the JSON file from the given URL
       const response = await fetch(url);
 
-      // Check if the response was successful
       if (!response.ok) {
-          throw new Error(`Failed to fetch projects: ${response.statusText}`);
+          throw new Error(`Failed to fetch JSON data: ${response.statusText || 'Unknown error'}`);
       }
 
-      // Parse the response into JSON
       const data = await response.json();
-
-      // Return the parsed data
+      console.log('Fetched data:', data);  // Add a log to see the fetched data
       return data;
 
   } catch (error) {
-      // Handle and log errors
       console.error('Error fetching or parsing JSON data:', error);
+      return null;  // Return null to prevent further issues
   }
 }
+
 
 export function renderProjects(project, headingLevel = 'h2') {
   const article = document.createElement('article');

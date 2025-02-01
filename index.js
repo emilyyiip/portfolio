@@ -1,12 +1,21 @@
 import { fetchJSON, renderProjects, fetchGitHubData } from './global.js';
 async function loadLatestProjects() {
     const projects = await fetchJSON('./projects/project.json');
+
+    if (!projects) {
+        console.error('Failed to load project data.');
+        return;  // Stop execution if data is not available
+    }
+
+    if (!Array.isArray(projects)) {
+        console.error('Invalid project data format. Expected an array.');
+        return;
+    }
+
     const latestProjects = projects.slice(0, 3);
 
-    // Select the container for the latest projects
     const projectsContainer = document.querySelector('.projects');
 
-    // Render the latest projects if the container exists
     if (projectsContainer) {
         latestProjects.forEach(project => {
             const projectElement = renderProjects(project, 'h2');
