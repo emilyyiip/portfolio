@@ -1,6 +1,6 @@
 import { fetchJSON, renderProjects, fetchGitHubData } from './global.js';
 async function loadLatestProjects() {
-    const projects = await fetchJSON('./projects/project.json');
+    const projects = await fetchJSON('./projects/projects.json');
 
     if (!projects) {
         console.error('Failed to load project data.');
