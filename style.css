@@ -128,3 +128,26 @@ nav a:hover {
     margin-left: 0.5rem;
 }
 
+#profile-stats dl {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;  /* Four equal columns */
+    row-gap: 10px;
+    column-gap: 20px;
+    margin: 0;
+    padding: 0;
+}
+
+#profile-stats dt {
+    font-weight: bold;
+    text-align: left;
+    grid-column: span 1;
+}
+
+#profile-stats dd {
+    margin: 0;
+    text-align: left;
+    color: #555;
+    grid-column: span 1;
+}
+
+
