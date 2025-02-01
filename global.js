@@ -104,14 +104,13 @@ themeSwitcher.addEventListener('change', (event) => {
   applyTheme(theme === 'auto' ? detectSystemTheme() : theme);
 });
 
-// Extracts projects data from HTML structure
-$$('.projects > article').map((a) => ({
-  // Get the project title from the <h2> element
-  title: $('h2', a).textContent.trim(),
-  
-  // Get the image source from the <img> element
-  image: $('img', a).getAttribute('src'),
-  
-  // Get the project description from the <p> element
-  description: $('p', a).textContent.trim(),
-}));
+// Select all articles inside the .projects div and map over them
+document.querySelectorAll('.projects > article').forEach((a) => {
+  // Extract project data
+  const title = a.querySelector('h2')?.textContent.trim() || '';
+  const image = a.querySelector('img')?.getAttribute('src') || '';
+  const description = a.querySelector('p')?.textContent.trim() || '';
+
+  console.log({ title, image, description });  // Log the result to the console
+});
+
