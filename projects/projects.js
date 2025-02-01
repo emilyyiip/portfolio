@@ -42,7 +42,4 @@ async function loadAndRenderProjects() {
 window.addEventListener('DOMContentLoaded', loadAndRenderProjects);
 
 
-// Run the function when the DOM content is loaded
-window.addEventListener('DOMContentLoaded', loadAndRenderProjects);
-
 
