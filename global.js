@@ -137,49 +137,22 @@ export async function fetchJSON(url) {
   }
 }
 
-export function renderProjects(project, containerElement, headingLevel = 'h2') {
-  // Validate the containerElement to ensure it's not null or undefined
-  if (!containerElement) {
-      console.error('Container element is not valid.');
-      return;
-  }
-
-  // Clear the existing content of the container to prevent duplication
-  containerElement.innerHTML = '';
-
-  // Create an article element to hold the project data
+export function renderProjects(project, headingLevel = 'h2') {
   const article = document.createElement('article');
 
-  // Validate and handle the headingLevel parameter
-  const validHeadingLevels = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
-  if (!validHeadingLevels.includes(headingLevel)) {
-      console.warn(`Invalid heading level "${headingLevel}" provided. Defaulting to 'h2'.`);
-      headingLevel = 'h2';
-  }
-
-  // Create the heading element dynamically based on the headingLevel
   const heading = document.createElement(headingLevel);
   heading.textContent = project.title || 'Untitled Project';
 
-  // Create the image element and handle missing image data
   const image = document.createElement('img');
-  image.src = project.image || 'https://via.placeholder.com/150';  // Placeholder image URL
+  image.src = project.image || 'https://via.placeholder.com/150';
   image.alt = project.title || 'Project Image';
 
-  // Create the description paragraph
   const description = document.createElement('p');
   description.textContent = project.description || 'No description available.';
 
-  // Append elements to the article
   article.appendChild(heading);
   article.appendChild(image);
   article.appendChild(description);
 
-  // Append the article to the container element
-  containerElement.appendChild(article);
+  return article;  // Return the article element to append later
 }
-
-
-
-
-
