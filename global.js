@@ -103,3 +103,15 @@ themeSwitcher.addEventListener('change', (event) => {
   const theme = event.target.value;
   applyTheme(theme === 'auto' ? detectSystemTheme() : theme);
 });
+
+// Extracts projects data from HTML structure
+$$('.projects > article').map((a) => ({
+  // Get the project title from the <h2> element
+  title: $('h2', a).textContent.trim(),
+  
+  // Get the image source from the <img> element
+  image: $('img', a).getAttribute('src'),
+  
+  // Get the project description from the <p> element
+  description: $('p', a).textContent.trim(),
+}));
