@@ -114,3 +114,72 @@ document.querySelectorAll('.projects > article').forEach((a) => {
   console.log({ title, image, description });  // Log the result to the console
 });
 
+// Function to fetch and parse project data from a JSON file
+export async function fetchJSON(url) {
+  try {
+      // Fetch the JSON file from the given URL
+      const response = await fetch(url);
+
+      // Check if the response was successful
+      if (!response.ok) {
+          throw new Error(`Failed to fetch projects: ${response.statusText}`);
+      }
+
+      // Parse the response into JSON
+      const data = await response.json();
+
+      // Return the parsed data
+      return data;
+
+  } catch (error) {
+      // Handle and log errors
+      console.error('Error fetching or parsing JSON data:', error);
+  }
+}
+
+export function renderProjects(project, containerElement, headingLevel = 'h2') {
+  // Validate the containerElement to ensure it's not null or undefined
+  if (!containerElement) {
+      console.error('Container element is not valid.');
+      return;
+  }
+
+  // Clear the existing content of the container to prevent duplication
+  containerElement.innerHTML = '';
+
+  // Create an article element to hold the project data
+  const article = document.createElement('article');
+
+  // Validate and handle the headingLevel parameter
+  const validHeadingLevels = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+  if (!validHeadingLevels.includes(headingLevel)) {
+      console.warn(`Invalid heading level "${headingLevel}" provided. Defaulting to 'h2'.`);
+      headingLevel = 'h2';
+  }
+
+  // Create the heading element dynamically based on the headingLevel
+  const heading = document.createElement(headingLevel);
+  heading.textContent = project.title || 'Untitled Project';
+
+  // Create the image element and handle missing image data
+  const image = document.createElement('img');
+  image.src = project.image || 'https://via.placeholder.com/150';  // Placeholder image URL
+  image.alt = project.title || 'Project Image';
+
+  // Create the description paragraph
+  const description = document.createElement('p');
+  description.textContent = project.description || 'No description available.';
+
+  // Append elements to the article
+  article.appendChild(heading);
+  article.appendChild(image);
+  article.appendChild(description);
+
+  // Append the article to the container element
+  containerElement.appendChild(article);
+}
+
+
+
+
+
