@@ -156,3 +156,7 @@ export function renderProjects(project, headingLevel = 'h2') {
 
   return article;  // Return the article element to append later
 }
+export async function fetchGitHubData(username) {
+  return fetchJSON(`https://api.github.com/users/emilyyiip`);
+}
+

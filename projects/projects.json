@@ -1,61 +1,73 @@
 [
     {
         "title": "Lorem ipsum dolor sit.",
+        "year": "2024",
         "image": "https://vis-society.github.io/labs/2/images/empty.svg",
         "description": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloremque, sed hic molestias quo laboriosam quae id sunt sequi placeat perferendis, architecto ipsum pariatur consequatur illum omnis vel blanditiis optio a."
     },
     {
         "title": "Veniam eius minus totam?",
+        "year": "2024",
         "image": "https://vis-society.github.io/labs/2/images/empty.svg",
         "description": "Ullam quia nostrum, perspiciatis molestiae neque alias praesentium sit ea! A harum ullam saepe nam at."
     },
     {
         "title": "Illo reiciendis excepturi mollitia?",
+        "year": "2024",
         "image": "https://vis-society.github.io/labs/2/images/empty.svg",
         "description": "Excepturi voluptate impedit nostrum iusto possimus quis, facilis necessitatibus aspernatur odit, natus adipisci quam. Pariatur nobis consequatur recusandae et mollitia molestias, possimus aliquam laborum voluptatum fuga, dolore illo facere minima."
     },
     {
         "title": "Omnis accusantium eligendi maxime!",
+        "year": "2024",
         "image": "https://vis-society.github.io/labs/2/images/empty.svg",
         "description": "Consequuntur, ad hic amet debitis delectus recusandae sequi impedit temporibus, alias molestias odit!"
     },
     {
         "title": "Reiciendis iste nemo nobis.",
+        "year": "2024",
         "image": "https://vis-society.github.io/labs/2/images/empty.svg",
         "description": "Aliquam provident quo aperiam qui tempore eius sint exercitationem eveniet sapiente."
     },
     {
         "title": "Laudantium cum omnis non.",
+        "year": "2024",
         "image": "https://vis-society.github.io/labs/2/images/empty.svg",
         "description": "Quis numquam amet inventore excepturi deserunt omnis doloremque minus hic voluptatem. Iusto, eligendi?"
     },
     {
         "title": "Hic odio dolorem in.",
+        "year": "2024",
         "image": "https://vis-society.github.io/labs/2/images/empty.svg",
         "description": "Necessitatibus impedit dolor exercitationem atque harum adipisci? Inventore vel rem ullam voluptatum."
     },
     {
         "title": "Dignissimos et nam iusto.",
+        "year": "2024",
         "image": "https://vis-society.github.io/labs/2/images/empty.svg",
         "description": "Libero, ea error. In nobis officiis consectetur odio pariatur? Eaque molestias blanditiis et harum rem aliquid!"
     },
     {
         "title": "Cumque omnis quos sequi.",
+        "year": "2024",
         "image": "https://vis-society.github.io/labs/2/images/empty.svg",
         "description": "Nam possimus id excepturi, incidunt dolorum similique pariatur est quaerat quos laudantium. Blanditiis."
     },
     {
         "title": "Veritatis esse perspiciatis qui?",
+        "year": "2024",
         "image": "https://vis-society.github.io/labs/2/images/empty.svg",
         "description": "Cupiditate, harum, et maiores repudiandae saepe quibusdam? Labore ipsam architecto autem quidem repellat illo."
     },
     {
         "title": "Obcaecati nobis voluptatum ab!",
+        "year": "2024",
         "image": "https://vis-society.github.io/labs/2/images/empty.svg",
         "description": "Dignissimos, vero repellat corrupti esse accusamus maxime similique ut repellendus saepe et culpa."
     },
     {
         "title": "Corrupti qui blanditiis placeat.",
+        "year": "2024",
         "image": "https://vis-society.github.io/labs/2/images/empty.svg",
         "description": "Repellendus, reprehenderit deleniti quaerat qui ea vel amet molestiae consequuntur provident! Eius?"
     }
