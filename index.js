@@ -1,6 +1,6 @@
 import { fetchJSON, renderProjects, fetchGitHubData } from './global.js';
 async function loadLatestProjects() {
-    const projects = await fetchJSON('./lib/projects.json');
+    const projects = await fetchJSON('./projects/project.json');
     const latestProjects = projects.slice(0, 3);
 
     // Select the container for the latest projects
