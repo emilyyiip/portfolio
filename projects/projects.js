@@ -1,5 +1,6 @@
 // Import the required functions from global.js
 import { fetchJSON, renderProjects } from '../global.js';
+import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm";
 
 async function loadAndRenderProjects() {
     try {
@@ -40,6 +41,39 @@ async function loadAndRenderProjects() {
 
 // Run the function when the DOM content is loaded
 window.addEventListener('DOMContentLoaded', loadAndRenderProjects);
+
+// Data for the pie chart
+let data = [1, 2];  // Two data points for slices
+
+// Colors for each slice
+let colors = ['gold', 'purple'];
+
+// Create an arc generator
+let arcGenerator = d3.arc().innerRadius(0).outerRadius(50);
+
+// Calculate total and generate arc data
+let total = data.reduce((acc, val) => acc + val, 0);
+let angle = 0;
+let arcData = [];
+
+data.forEach((d) => {
+  let endAngle = angle + (d / total) * 2 * Math.PI;
+  arcData.push({ startAngle: angle, endAngle });
+  angle = endAngle;
+});
+
+// Generate arcs and append them to the SVG element
+arcData.forEach((arcData, idx) => {
+  let pathData = arcGenerator(arcData);
+
+  d3.select('#projects-pie-plot')
+    .append('path')
+    .attr('d', pathData)
+    .attr('fill', colors[idx])
+    .attr('stroke', 'white') // Optional: Add a border between slices
+    .attr('stroke-width', 1);
+});
+
 
 
 
