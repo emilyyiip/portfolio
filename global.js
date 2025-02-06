@@ -133,26 +133,32 @@ export async function fetchJSON(url) {
 }
 
 
-export function renderProjects(project, headingLevel = 'h2') {
+export function renderProjects(project, headingTag = 'h3') {
+  // Create the project article element
   const article = document.createElement('article');
 
-  const heading = document.createElement(headingLevel);
-  heading.textContent = project.title || 'Untitled Project';
+  // Add a title
+  const title = document.createElement(headingTag);
+  title.textContent = project.title;
+  article.appendChild(title);
 
-  const image = document.createElement('img');
-  image.src = project.image || 'https://via.placeholder.com/150';
-  image.alt = project.title || 'Project Image';
+  // Add the year (new addition)
+  const year = document.createElement('p');
+  year.textContent = `Year: ${project.year}`;  // Display the year here
+  article.appendChild(year);
 
+  // Add a description
   const description = document.createElement('p');
-  description.textContent = project.description || 'No description available.';
-
-  article.appendChild(heading);
-  article.appendChild(image);
+  description.textContent = project.description;
   article.appendChild(description);
 
-  return article;  // Return the article element to append later
+  // Add an image
+  const image = document.createElement('img');
+  image.src = project.image;
+  image.alt = project.title || 'Project image';
+  article.appendChild(image);
+
+  return article;
 }
-export async function fetchGitHubData(username) {
-  return fetchJSON(`https://api.github.com/users/emilyyiip`);
-}
+
 
