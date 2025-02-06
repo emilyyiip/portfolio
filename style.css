@@ -150,4 +150,11 @@ nav a:hover {
     grid-column: span 1;
 }
 
+#projects-pie-plot {
+    max-width: 20em;
+    margin-block: 2em;
+    overflow: visible;
+  }
+  
+
 
