@@ -169,6 +169,7 @@ nav a:hover {
   
   .legend-item {
     display: flex;
+    color: #100f0f;
     align-items: center;
     gap: 0.5em;
   }
@@ -185,7 +186,7 @@ nav a:hover {
     font-style: italic;
     color: #666;
   }
-  
+
   path {
     cursor: pointer;
     transition: 300ms;
