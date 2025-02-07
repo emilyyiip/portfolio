@@ -72,7 +72,7 @@ function handleSearch(projects) {
   renderPieChart(filteredProjects);
 }
 
-function renderProjects(projectsList) {
+function renderProject(projectsList) {
   console.log('Rendering projects:', projectsList);
   // Implement this to display projects in the DOM
 }
@@ -137,6 +137,6 @@ function handleSliceClick(index, label, projects) {
     });
   }
 
-  renderProjects(filteredProjects);
+  renderProject(filteredProjects);
   renderPieChart(filteredProjects);
 }
