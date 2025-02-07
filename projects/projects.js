@@ -74,7 +74,6 @@ arcs.forEach((arc, idx) => {
     .append('path')
     .attr('d', arc)            // Set the arc path
     .attr('fill', colors[idx]) // Set the color
-    .attr('stroke', 'white')   // Optional: Add stroke for better visibility
     .attr('stroke-width', 2);
 });
 
