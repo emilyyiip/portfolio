@@ -42,40 +42,51 @@ async function loadAndRenderProjects() {
 // Run the function when the DOM content is loaded
 window.addEventListener('DOMContentLoaded', loadAndRenderProjects);
 
-// Define the data for the pie chart
-let data = [1, 2];  // Two slices: one 33% and one 66%
 
-// Calculate the total sum of the data values
-let total = d3.sum(data);
-
-// Calculate the start and end angles for each slice
-let angle = 0;
-let arcData = [];
-for (let d of data) {
-  let endAngle = angle + (d / total) * 2 * Math.PI;
-  arcData.push({ startAngle: angle, endAngle });
-  angle = endAngle;
-}
-
-// Create an arc generator
-let arcGenerator = d3.arc()
-  .innerRadius(0)
-  .outerRadius(50);  // Adjust as needed for size
-
-// Generate the arcs (SVG path data)
-let arcs = arcData.map((d) => arcGenerator(d));
-
-// Define colors for the slices
-let colors = ['gold', 'purple'];
-
-// Select the SVG and append paths for each slice
-arcs.forEach((arc, idx) => {
-  d3.select('#projects-plot')  // Ensure this matches the ID in your HTML
-    .append('path')
-    .attr('d', arc)            // Set the arc path
-    .attr('fill', colors[idx]) // Set the color
-    .attr('stroke-width', 2);
-});
-
-
-
+// Define the data with labels and values
+let data = [
+    { label: 'A', value: 1 },
+    { label: 'B', value: 2 },
+    { label: 'C', value: 3 },
+    { label: 'D', value: 4 },
+    { label: 'E', value: 5 },
+    { label: 'F', value: 5 }
+  ];
+  
+  // Create a pie slice generator
+  let sliceGenerator = d3.pie()
+    .value(d => d.value);  // Use the value property from data objects
+  
+  // Generate arc data
+  let arcData = sliceGenerator(data);
+  
+  // Create an arc generator
+  let arcGenerator = d3.arc()
+    .innerRadius(0)
+    .outerRadius(50);
+  
+  // Define a color scale
+  let colors = d3.scaleOrdinal(d3.schemeTableau10);
+  
+  // Select the SVG and append paths for each slice
+  arcData.forEach((d, idx) => {
+    d3.select('#projects-pie-plot')
+      .append('path')
+      .attr('d', arcGenerator(d))
+      .attr('fill', colors(idx))
+      .attr('stroke', 'white')
+      .attr('stroke-width', 2);
+  });
+  
+  // Generate the legend
+  let legend = d3.select('.legend');
+  
+  data.forEach((d, idx) => {
+    legend.append('li')
+      .attr('class', 'legend-item')
+      .attr('style', `--color:${colors(idx)}`)
+      .html(`
+        <span class="swatch"></span>
+        ${d.label} <em>(${d.value})</em>
+      `);
+  });
