@@ -69,7 +69,7 @@ let arcGenerator = d3.arc()
 
 // Select the SVG element and add paths for each arc segment
 arcData.forEach((arcSegment, index) => {
-  d3.select('#projects-pie-plot')
+  d3.select('#projects-plot')
     .append('path')
     .attr('d', arcGenerator(arcSegment))
     .attr('fill', colorScale(index));
