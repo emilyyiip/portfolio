@@ -70,7 +70,7 @@ let data = [
   
   // Select the SVG and append paths for each slice
   arcData.forEach((d, idx) => {
-    d3.select('#projects-pie-plot')
+    d3.select('#projects-plot')
       .append('path')
       .attr('d', arcGenerator(d))
       .attr('fill', colors(idx))
