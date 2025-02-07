@@ -50,7 +50,7 @@ let data = [
     { label: 'C', value: 3 },
     { label: 'D', value: 4 },
     { label: 'E', value: 5 },
-    { label: 'F', value: 5 }
+    { label: 'F', value: 6 }
   ];
   
   // Create a pie slice generator
@@ -74,7 +74,6 @@ let data = [
       .append('path')
       .attr('d', arcGenerator(d))
       .attr('fill', colors(idx))
-      .attr('stroke', 'white')
       .attr('stroke-width', 2);
   });
   
@@ -90,3 +89,4 @@ let data = [
         ${d.label} <em>(${d.value})</em>
       `);
   });
+  
