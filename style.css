@@ -156,5 +156,34 @@ nav a:hover {
     overflow: visible;
   }
   
+  .legend {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(9em, 1fr));
+    gap: 1em;
+    padding: 1em;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+  
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+  }
+  
+  .swatch {
+    display: inline-block;
+    width: 1.5em;
+    height: 1.5em;
+    border-radius: 50%;
+    background-color: var(--color);
+  }
+  
+  .legend-item em {
+    font-style: italic;
+    color: #666;
+  }
 
 
