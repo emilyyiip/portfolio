@@ -185,3 +185,17 @@ nav a:hover {
     font-style: italic;
     color: #666;
   }
+  
+  path {
+    cursor: pointer;
+    transition: 300ms;
+  }
+  
+  path:hover {
+    opacity: 0.7;
+  }
+  
+  .selected {
+    --color: oklch(60% 45% 0) !important;
+  }
+  
