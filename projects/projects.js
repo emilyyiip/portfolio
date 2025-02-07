@@ -43,39 +43,40 @@ async function loadAndRenderProjects() {
 window.addEventListener('DOMContentLoaded', loadAndRenderProjects);
 
 // Define the data for the pie chart
-let data = [1, 2];
+let data = [1, 2];  // Two slices: one 33% and one 66%
 
-// Define a color scale for the slices
-let colorScale = d3.scaleOrdinal()
-  .domain(data)
-  .range(["red", "blue"]);
-
-// Calculate total sum of data values
+// Calculate the total sum of the data values
 let total = d3.sum(data);
 
-// Generate arc data (start and end angles for each slice)
+// Calculate the start and end angles for each slice
 let angle = 0;
-let arcData = data.map(d => {
+let arcData = [];
+for (let d of data) {
   let endAngle = angle + (d / total) * 2 * Math.PI;
-  let arcSegment = { startAngle: angle, endAngle: endAngle };
+  arcData.push({ startAngle: angle, endAngle });
   angle = endAngle;
-  return arcSegment;
-});
+}
 
-// Create an arc generator with D3
+// Create an arc generator
 let arcGenerator = d3.arc()
   .innerRadius(0)
-  .outerRadius(50);
+  .outerRadius(50);  // Adjust as needed for size
 
-// Select the SVG element and add paths for each arc segment
-arcData.forEach((arcSegment, index) => {
-  d3.select('#projects-plot')
+// Generate the arcs (SVG path data)
+let arcs = arcData.map((d) => arcGenerator(d));
+
+// Define colors for the slices
+let colors = ['gold', 'purple'];
+
+// Select the SVG and append paths for each slice
+arcs.forEach((arc, idx) => {
+  d3.select('#projects-plot')  // Ensure this matches the ID in your HTML
     .append('path')
-    .attr('d', arcGenerator(arcSegment))
-    .attr('fill', colorScale(index));
+    .attr('d', arc)            // Set the arc path
+    .attr('fill', colors[idx]) // Set the color
+    .attr('stroke', 'white')   // Optional: Add stroke for better visibility
+    .attr('stroke-width', 2);
 });
-
-
 
 
 
