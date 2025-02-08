@@ -135,3 +135,6 @@ function handleSliceClick(index, label, projects, clickedPath, colors) {
     // Update project list
     renderProjectsList(filteredProjects);
 }
+
+// Load projects and render them when the DOM content is loaded
+window.addEventListener('DOMContentLoaded', loadAndRenderProjects); 
