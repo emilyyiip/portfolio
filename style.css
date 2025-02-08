@@ -190,6 +190,7 @@ nav a:hover {
   path {
     cursor: pointer;
     transition: 300ms;
+    stroke:none;
   }
   
   path:hover {
