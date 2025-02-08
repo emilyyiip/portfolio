@@ -196,10 +196,17 @@ nav a:hover {
   path:hover {
     opacity: 0.7;
   }
-  
-  .selected {
+
+
+/* Prevent legend from changing when a part of the circle is clicked */
+.selected {
     --color: oklch(60% 45% 0) !important;
-  }
+    /* Remove any additional changes to legend elements */
+}
+
+.selected:is(path) {
+    fill: var(--color);
+}
 
   .search-container {
     display: flex;
@@ -215,7 +222,7 @@ nav a:hover {
     border-radius: 8px;
     font-size: 1rem;
     background-color: #f9f9f9;
-    color: #000;
+    color: #282828;
     outline: none;
     transition: all 0.3s ease;
   }
