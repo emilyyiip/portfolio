@@ -114,13 +114,16 @@ function renderPieChart(projectsList) {
 function handleSliceClick(index, label, projects) {
     selectedIndex = selectedIndex === index ? -1 : index;
 
-    // Filter projects by selected year (if a slice is selected) and query
-    let filteredProjects = projects.filter(project => {
-        const matchesQuery = Object.values(project).join(' ').toLowerCase().includes(query);
-        const matchesYear = selectedIndex === -1 || project.year === label;
-        return matchesQuery && matchesYear;
-    });
-
+    // Filter projects by selected year and query
+    let filteredProjects;
+    if (selectedIndex !== -1) {
+        filteredProjects = projects.filter(p => p.year === label);
+    } else {
+        filteredProjects = projects.filter(project => {
+            const values = Object.values(project).join(' ').toLowerCase();
+            return values.includes(query);
+        });
+    }
     // Only update the project list; do not re-render the pie chart or legend
     renderProjectsList(filteredProjects);
 }
