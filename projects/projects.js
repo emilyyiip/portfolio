@@ -22,7 +22,7 @@ async function loadAndRenderProjects() {
         }
 
         // Update title with project count
-        projectsTitle.textContent = ${projects.length} Projects;
+        projectsTitle.textContent = '${projects.length} Projects';
 
         // Render the initial projects and pie chart
         renderProjectsList(projects);
