@@ -24,7 +24,7 @@ jobs:
       - name: Run Elocuent to generate CSV
         run: |
           mkdir -p meta  # Ensure directory exists
-          npx elocuent -d . -o meta/loc.csv  # Generate CSV file
+          npx elocuent -d . -o meta/loc.csv  
 
       - name: Commit and Push CSV file
         run: |
