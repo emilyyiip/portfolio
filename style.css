@@ -236,4 +236,39 @@ nav a:hover {
     background-color: #fff;
     box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
   }
+
+  .tooltip {
+    position: fixed;
+    top: 1em;
+    left: 1em;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    padding: 10px;
+    font-family: Arial, sans-serif;
+}
+
+dl.info {
+    display: grid;
+    grid-template-columns: max-content auto;
+    gap: 5px;
+    font-size: 14px;
+}
+
+dl.info[hidden]:not(:hover, :focus-within) {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+circle {
+    transition: 200ms;
+    transform-origin: center;
+    transform-box: fill-box;
+}
+
+circle:hover {
+    transform: scale(1.5);
+}
+
   
