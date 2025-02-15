@@ -16,6 +16,7 @@ const pages = [
   { url: 'contact/index.html', title: 'Contact' },
   { url: 'resume/index.html', title: 'Resume' },
   { url: 'https://github.com/emilyyiip', title: 'GitHub' },
+  { url: 'meta/index.html', title: 'Meta' },
 ];
 
 // Create the navigation menu
