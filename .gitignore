@@ -1,0 +1,3 @@
+# Ignore elocuent CSV and dependencies
+meta/loc.csv
+node_modules/
