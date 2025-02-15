@@ -21,9 +21,6 @@ jobs:
         with:
           fetch-depth: 0  # Fetch all commits for accurate history
 
-      - name: Install Dependencies
-        run: npm install  # Ensures dependencies are installed
-
       - name: Run Elocuent to generate CSV
         run: |
           mkdir -p meta  # Ensure directory exists
