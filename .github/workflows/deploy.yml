@@ -3,11 +3,11 @@ name: Generate and Commit CSV
 on:
   push:
     branches:
-      - main  # Change if needed
+      - main 
   workflow_dispatch:  # Allows manual triggering
 
 permissions:
-  contents: write  # Allows committing changes
+  contents: write  
   pages: write
   id-token: write
 
