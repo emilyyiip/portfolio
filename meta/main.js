@@ -1,4 +1,5 @@
 console.log('TEST');
+console.log('TESTYAY');
 let data = [];
 let commits = [];
 
