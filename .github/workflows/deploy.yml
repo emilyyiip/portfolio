@@ -19,7 +19,7 @@ jobs:
       - name: Checkout repository with full history
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all commits for accurate history
+          fetch-depth: 0 
 
       - name: Run Elocuent to generate CSV
         run: |
