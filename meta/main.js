@@ -7,6 +7,8 @@ let brushSelection = null;
 const width = 1000;
 const height = 600;
 
+
+
 async function loadData() {
     data = await d3.csv('loc.csv', (row) => ({
         ...row,
@@ -17,6 +19,7 @@ async function loadData() {
         datetime: new Date(row.datetime),
     }));
     
+    processCommits();
     displayStats();
     createScatterplot(); 
 }
@@ -310,6 +313,7 @@ function displayStats() {
     );
     dl.append('dd').text(d3.greatest(workByPeriod, d => d[1])?.[0]);
 }
+
 
 document.addEventListener('DOMContentLoaded', async () => {
     await loadData();
