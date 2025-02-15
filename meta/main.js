@@ -166,3 +166,93 @@ function updateTooltipPosition(event) {
 document.addEventListener('DOMContentLoaded', async () => {
     await loadData();
 });
+const commit = [
+    { id: "123abc", url: "#", datetime: new Date(), totalLines: 50, lines: [{ type: "JS", count: 50 }] },
+    { id: "456def", url: "#", datetime: new Date(), totalLines: 20, lines: [{ type: "CSS", count: 20 }] },
+    { id: "789ghi", url: "#", datetime: new Date(), totalLines: 80, lines: [{ type: "HTML", count: 80 }] }
+];
+const svg = d3.select("svg");
+const width = +svg.attr("width");
+const height = +svg.attr("height");
+const xScale = d3.scaleLinear().domain([0, 100]).range([50, width - 50]);
+const yScale = d3.scaleLinear().domain([0, 100]).range([height - 50, 50]);
+const rScale = d3.scaleSqrt().domain([0, 100]).range([2, 30]);
+let brushSelection = null;
+
+const dots = svg.selectAll("circle")
+    .data(commit)
+    .enter().append("circle")
+    .attr("cx", (d, i) => xScale(i * 30))
+    .attr("cy", (d, i) => yScale(i * 30))
+    .attr("r", d => rScale(d.totalLines))
+    .style("fill-opacity", 0.7)
+    .on("mouseenter", (event, d) => {
+        updateTooltipContent(d);
+        updateTooltipVisibility(true);
+        updateTooltipPosition(event);
+        d3.select(event.currentTarget).style("fill-opacity", 1);
+    })
+    .on("mouseleave", () => {
+        updateTooltipContent({});
+        updateTooltipVisibility(false);
+        d3.selectAll("circle").style("fill-opacity", 0.7);
+    });
+
+function updateTooltipContent(commit) {
+    if (!commit.id) return;
+    document.getElementById("commit-link").href = commit.url;
+    document.getElementById("commit-link").textContent = commit.id;
+    document.getElementById("commit-date").textContent = commit.datetime.toLocaleString('en', { dateStyle: 'full' });
+}
+
+function updateTooltipVisibility(isVisible) {
+    document.getElementById("commit-tooltip").hidden = !isVisible;
+}
+
+function updateTooltipPosition(event) {
+    const tooltip = document.getElementById("commit-tooltip");
+    tooltip.style.left = `${event.clientX}px`;
+    tooltip.style.top = `${event.clientY}px`;
+}
+
+function brushed(event) {
+    brushSelection = event.selection;
+    updateSelection();
+}
+
+function isCommitSelected(commit) {
+    if (!brushSelection) return false;
+    const [x0, y0] = brushSelection[0];
+    const [x1, y1] = brushSelection[1];
+    const x = xScale(commits.indexOf(commit) * 30);
+    const y = yScale(commits.indexOf(commit) * 30);
+    return x >= x0 && x <= x1 && y >= y0 && y <= y1;
+}
+
+function updateSelection() {
+    d3.selectAll("circle").classed("selected", d => isCommitSelected(d));
+    updateSelectionCount();
+    updateLanguageBreakdown();
+}
+
+function updateSelectionCount() {
+    const selectedCommits = brushSelection ? commits.filter(isCommitSelected) : [];
+    document.getElementById("selection-count").textContent = `${selectedCommits.length || 'No'} commits selected`;
+}
+
+function updateLanguageBreakdown() {
+    const selectedCommits = brushSelection ? commits.filter(isCommitSelected) : [];
+    const container = document.getElementById("language-breakdown");
+    container.innerHTML = '';
+    if (selectedCommits.length === 0) return;
+    const lines = selectedCommits.flatMap(d => d.lines);
+    const breakdown = d3.rollup(lines, v => v.length, d => d.type);
+    breakdown.forEach((count, language) => {
+        const formatted = d3.format(".1~%")(count / lines.length);
+        container.innerHTML += `<dt>${language}</dt><dd>${count} lines (${formatted})</dd>`;
+    });
+}
+
+d3.select(svg).call(d3.brush().on("start brush end", brushed));
+d3.select(svg).selectAll(".dots, .overlay ~ *").raise();
+
