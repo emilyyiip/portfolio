@@ -3,8 +3,13 @@ name: Generate and Commit CSV
 on:
   push:
     branches:
-      - main  # Change this if you're using a different branch
+      - main  # Change if needed
   workflow_dispatch:  # Allows manual triggering
+
+permissions:
+  contents: write  # Allows committing changes
+  pages: write
+  id-token: write
 
 jobs:
   generate_csv:
@@ -14,18 +19,22 @@ jobs:
       - name: Checkout repository with full history
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetches full Git history
+          fetch-depth: 0  # Fetch all commits for accurate history
+
+      - name: Install Dependencies
+        run: npm install  # Ensures dependencies are installed
 
       - name: Run Elocuent to generate CSV
         run: |
-          mkdir -p meta  # Ensure the output directory exists
-          npx elocuent -d . -o meta/loc.csv  # Generate the CSV
+          mkdir -p meta  # Ensure directory exists
+          npx elocuent -d . -o meta/loc.csv  # Generate CSV file
 
       - name: Commit and Push CSV file
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git pull --rebase  # Ensure we're up to date before pushing
+          git pull --rebase  # Prevent merge conflicts
           git add -f meta/loc.csv
           git commit -m "Update code statistics" || echo "No changes to commit"
           git push
+
