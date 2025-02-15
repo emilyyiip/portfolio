@@ -298,22 +298,7 @@ function displayStats() {
 
     dl.append('dt').text('Number of files');
     dl.append('dd').text(d3.group(data, d => d.file).size);
-
-    dl.append('dt').text('Maximum file length (in lines)');
-    dl.append('dd').text(d3.max(data, d => d.line));
-
-    dl.append('dt').text('Average file length (in lines)');
-    dl.append('dd').text(d3.mean(d3.rollups(data, v => d3.max(v, d => d.line), d => d.file), d => d[1]));
-
-    dl.append('dt').text('Time of day most work is done');
-    const workByPeriod = d3.rollups(
-        data,
-        v => v.length,
-        d => new Date(d.datetime).toLocaleString('en', { dayPeriod: 'short' })
-    );
-    dl.append('dd').text(d3.greatest(workByPeriod, d => d[1])?.[0]);
 }
-
 
 document.addEventListener('DOMContentLoaded', async () => {
     await loadData();
