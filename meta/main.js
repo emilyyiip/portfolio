@@ -44,7 +44,7 @@ function processCommits() {
         return ret;
     });
 }
-console.log(commits)
+console.log('COMMITS:', commits);
 
 function displayStats() {
     // Process commits first
