@@ -47,14 +47,23 @@ function processCommits() {
 
 // Display stats at the top of the page
 function displayStats() {
+    // Process commits first
     processCommits();
+    // Create the dl element
     const dl = d3.select('#stats').append('dl').attr('class', 'stats');
-
+    // Add total LOC
     dl.append('dt').html('Total <abbr title="Lines of code">LOC</abbr>');
     dl.append('dd').text(data.length);
-
+    // Add total commits
     dl.append('dt').text('Total commits');
     dl.append('dd').text(commits.length);
+    // Additional Stats
+    dl.append('dt').text('Number of Files');
+    dl.append('dd').text(d3.group(data, d => d.file).size);
+    dl.append('dt').text('Maximum File Length');
+    dl.append('dd').text(d3.max(data, d => d.line));
+    dl.append('dt').text('Average Line Length');
+    dl.append('dd').text(d3.mean(data, d => d.length).toFixed(2));
 }
 
 // Create scatterplot with axes, grid, and tooltip
