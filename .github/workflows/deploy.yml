@@ -1,16 +1,31 @@
-name: Deploy
+name: Generate and Commit CSV
 
 on:
   push:
     branches:
-      - main  # Change this if needed
+      - main  # Change this if you're using a different branch
+  workflow_dispatch:  # Allows manual triggering
 
 jobs:
-  deploy:
+  generate_csv:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
+      - name: Checkout repository with full history
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch full Git history
+          fetch-depth: 0  # Fetches full Git history
 
+      - name: Run Elocuent to generate CSV
+        run: |
+          mkdir -p meta  # Ensure the output directory exists
+          npx elocuent -d . -o meta/loc.csv  # Generate the CSV
+
+      - name: Commit and Push CSV file
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git pull --rebase  # Ensure we're up to date before pushing
+          git add -f meta/loc.csv
+          git commit -m "Update code statistics" || echo "No changes to commit"
+          git push
