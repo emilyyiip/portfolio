@@ -1,9 +1,9 @@
 [
     {
-        "title": "Lorem ipsum dolor sit.",
+        "title": "Bikewatchers",
         "year": "2024",
-        "image": "https://vis-society.github.io/labs/2/images/empty.svg",
-        "description": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloremque, sed hic molestias quo laboriosam quae id sunt sequi placeat perferendis, architecto ipsum pariatur consequatur illum omnis vel blanditiis optio a."
+        "image": "https://cdn.discordapp.com/attachments/1237978846926606377/1344188669929721866/IMG_0833.png?ex=67c000c0&is=67beaf40&hm=c268d73bed76f6f031fdda1725f861931fa3b3a99eba9cddccba2117be90471c&",
+        "description": "Bikewatching is an interactive web-based data visualization tool that explores bike traffic patterns in the Boston and Cambridge area. Using real-time station data, historical ride data, and geographic mapping, this project provides insights into bike-sharing activity, station usage, and traffic flow."
     },
     {
         "title": "Veniam eius minus totam?",
