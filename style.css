@@ -284,3 +284,12 @@ circle:hover {
 circle.selected {
   fill: #ff6b6b;
 }
+
+.project-card img {
+  width: 200px;  /* Set a fixed width */
+  height: 150px; /* Set a fixed height */
+  object-fit: cover; /* Ensures images maintain aspect ratio and fill the box */
+  border-radius: 10px; /* Optional: Rounds corners */
+  display: block;
+  margin: 0 auto;
+}
