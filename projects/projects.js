@@ -61,8 +61,8 @@ function renderProjectsList(projectsList) {
     // Render each project using the provided renderProjects helper
     projectsList.forEach(project => {
         const projectArticle = renderProjects(project, 'h3');
-        projectsContainer.appendChild(projectArticle);
         projectArticle.classList.add('project-card');
+        projectsContainer.appendChild(projectArticle);
     });
 }
 function renderPieChart(projectsList) {
