@@ -58,20 +58,13 @@ function renderProjectsList(projectsList) {
     // Clear previous projects
     projectsContainer.innerHTML = '';
 
+    // Render each project using the provided renderProjects helper
     projectsList.forEach(project => {
-        const projectArticle = document.createElement('article');
-        projectArticle.classList.add('project-card'); // ✅ Apply the class
-
-        projectArticle.innerHTML = `
-            <h3>${project.name}</h3>
-            <img src="${project.image}" alt="${project.name}">
-            <p>${project.description}</p>
-        `;
-
+        const projectArticle = renderProjects(project, 'h3');
         projectsContainer.appendChild(projectArticle);
+        projectArticle.classList.add('project-card');
     });
 }
-
 function renderPieChart(projectsList) {
     // Group projects by year
     const rolledData = d3.rollups(
