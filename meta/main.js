@@ -235,7 +235,46 @@ function updateScatterplot(filteredCommits) {
     if (tooltip) tooltip.hidden = false;
     if (link) {
       link.href = commit.url;
-      link.textContent = commit.id;
+      link.textContent = commit.id;function displayCommitFiles(filteredCommits) {
+        // Extract all lines from the filtered commits
+        const lines = filteredCommits.flatMap(d => d.lines);
+        
+        // Create an ordinal scale for file types (technologies)
+        let fileTypeColors = d3.scaleOrdinal(d3.schemeTableau10);
+        
+        // Group lines by file and create an array of file objects
+        let files = d3.groups(lines, d => d.file)
+          .map(([name, lines]) => ({ name, lines }));
+        
+        // Sort files by number of lines (descending)
+        files = d3.sort(files, d => -d.lines.length);
+        
+        // Clear any existing file visualization
+        d3.select('.files').selectAll('div').remove();
+        
+        // Bind the files data to new container divs
+        let filesContainer = d3.select('.files')
+          .selectAll('div')
+          .data(files)
+          .enter()
+          .append('div');
+        
+        // Append a <dt> for the file name and total lines.
+        // We include a <small> element for the line count.
+        filesContainer.append('dt')
+          .html(d => `<code>${d.name}</code><small>${d.lines.length} lines</small>`);
+        
+        // Append a <dd> that will contain one dot per line.
+        // Here we bind each line (data point) to a new <div class="line">
+        filesContainer.append('dd')
+          .selectAll('div')
+          .data(d => d.lines)
+          .enter()
+          .append('div')
+          .attr('class', 'line')
+          .style('background', d => fileTypeColors(d.type));
+      }
+      
     }
     if (dateEl) {
       dateEl.textContent = commit.datetime.toLocaleString('en', { dateStyle: 'full' });
@@ -308,17 +347,37 @@ function displayStats() {
 }
 
 // ---------- UNIT VISUALIZATION FOR FILES (Step 2) ----------
-
 function displayCommitFiles(filteredCommits) {
+  // Extract all lines from the filtered commits
   const lines = filteredCommits.flatMap(d => d.lines);
+  
+  // Create an ordinal scale for file types (technologies)
   let fileTypeColors = d3.scaleOrdinal(d3.schemeTableau10);
+  
+  // Group lines by file and create an array of file objects
   let files = d3.groups(lines, d => d.file)
     .map(([name, lines]) => ({ name, lines }));
+  
+  // Sort files by number of lines (descending)
   files = d3.sort(files, d => -d.lines.length);
+  
+  // Clear any existing file visualization
   d3.select('.files').selectAll('div').remove();
-  let filesContainer = d3.select('.files').selectAll('div').data(files).enter().append('div');
+  
+  // Bind the files data to new container divs
+  let filesContainer = d3.select('.files')
+    .selectAll('div')
+    .data(files)
+    .enter()
+    .append('div');
+  
+  // Append a <dt> for the file name and total lines.
+  // We include a <small> element for the line count.
   filesContainer.append('dt')
     .html(d => `<code>${d.name}</code><small>${d.lines.length} lines</small>`);
+  
+  // Append a <dd> that will contain one dot per line.
+  // Here we bind each line (data point) to a new <div class="line">
   filesContainer.append('dd')
     .selectAll('div')
     .data(d => d.lines)
@@ -327,6 +386,7 @@ function displayCommitFiles(filteredCommits) {
     .attr('class', 'line')
     .style('background', d => fileTypeColors(d.type));
 }
+
 
 // ---------- SCROLLY: Commits Over Time (Step 3) ----------
 
