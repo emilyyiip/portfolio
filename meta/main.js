@@ -366,25 +366,25 @@ function displayCommitFiles(commitSlice, containerSelector = '.files') {
   const fileTypeColors = d3.scaleOrdinal()
                            .domain(types)
                            .range(d3.schemeTableau10);
-
+ 
   // For the commit slice, get all lines and group by file
   const lines = commitSlice.flatMap(d => d.lines);
   let files = d3.groups(lines, d => d.file)
                 .map(([name, lines]) => ({ name, lines }));
   files = d3.sort(files, (a, b) => b.lines.length - a.lines.length);
-
+ 
   d3.select(containerSelector).selectAll('div').remove();
-
+ 
   let filesContainer = d3.select(containerSelector)
                          .selectAll('div')
                          .data(files)
                          .enter()
                          .append('div')
                          .style('margin-bottom', '1em');
-
+ 
   filesContainer.append('dt')
                 .html(d => `<code>${d.name}</code><br><small>${d.lines.length} lines</small>`);
-
+ 
   filesContainer.append('dd')
                 .style('display', 'flex')
                 .style('flex-wrap', 'wrap')
@@ -395,7 +395,7 @@ function displayCommitFiles(commitSlice, containerSelector = '.files') {
                 .attr('class', 'line')
                 .style('background', d => fileTypeColors(d.type));
 }
-
+ 
 document.addEventListener('DOMContentLoaded', async () => {
   await loadData();
   document.getElementById('time-slider').addEventListener('input', () => {
