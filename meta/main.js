@@ -173,16 +173,15 @@ function updateScatterplot(filteredCommits) {
   .style('fill-opacity', 0.7)
   .style('stroke-width', 1.5)
   .on('mouseenter', function (event, d) {
-    // Change dot color to red on hover
+    console.log("Mouse entered on commit", d.id);
     d3.select(this).style('fill', '#ff6b6b');
-    // Update and show the tooltip with the commit's info
     updateTooltipContent(d);
     updateTooltipVisibility(true);
     updateTooltipPosition(event);
-    // Increase opacity and mark as selected
     d3.select(this).style('fill-opacity', 1);
     d3.select(this).classed('selected', true);
-  })
+  })  
+  
   .on('mousemove', (event) => {
     // Update tooltip position as the mouse moves
     updateTooltipPosition(event);
