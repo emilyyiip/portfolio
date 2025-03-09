@@ -160,37 +160,44 @@ function updateScatterplot(filteredCommits) {
   gridlines.call(d3.axisLeft(yScale).tickFormat('').tickSize(-usableArea.width));
 
   const dots = svg.append('g').attr('class', 'dots');
-
   dots.selectAll('circle')
-    .data(filteredCommits)
-    .join('circle')
-    .attr('cx', d => xScale(d.datetime))
-    .attr('cy', d => yScale(d.hourFrac))
-    .attr('r', d => rScale(d.totalLines))
-    .style('fill', d => {
-      const hour = d.hourFrac;
-      return hour < 6 || hour >= 18 ? '#4477AA' : '#DD7733';
-    })
-    .style('fill-opacity', 0.7)
-    .style('stroke-width', 1.5)
-    .on('mouseover', function (event, d) {
-      d3.select(this).style('fill', '#ff6b6b');
-      updateTooltipContent(d);
-      updateTooltipVisibility(true);
-      updateTooltipPosition(event);
-      d3.select(this).style('fill-opacity', 1);
-      d3.select(this).classed('selected', true);
-    })
-    .on('mousemove', (event) => {
-      updateTooltipPosition(event);
-    })
-    .on('mouseleave', function (event, d) {
-      updateTooltipVisibility(false);
-      const hour = d.hourFrac;
-      d3.select(this).style('fill', hour < 6 || hour >= 18 ? '#4477AA' : '#DD7733');
-      d3.select(this).style('fill-opacity', 0.7);
-      d3.select(this).classed('selected', false);
-    });
+  .data(filteredCommits)
+  .join('circle')
+  .attr('cx', d => xScale(d.datetime))
+  .attr('cy', d => yScale(d.hourFrac))
+  .attr('r', d => rScale(d.totalLines))
+  .style('fill', d => {
+    const hour = d.hourFrac;
+    return hour < 6 || hour >= 18 ? '#4477AA' : '#DD7733';
+  })
+  .style('fill-opacity', 0.7)
+  .style('stroke-width', 1.5)
+  .on('mouseenter', function (event, d) {
+    // Change dot color to red on hover
+    d3.select(this).style('fill', '#ff6b6b');
+    // Update and show the tooltip with the commit's info
+    updateTooltipContent(d);
+    updateTooltipVisibility(true);
+    updateTooltipPosition(event);
+    // Increase opacity and mark as selected
+    d3.select(this).style('fill-opacity', 1);
+    d3.select(this).classed('selected', true);
+  })
+  .on('mousemove', (event) => {
+    // Update tooltip position as the mouse moves
+    updateTooltipPosition(event);
+  })
+  .on('mouseleave', function (event, d) {
+    // Hide tooltip on mouse leave
+    updateTooltipVisibility(false);
+    // Restore the original fill color based on the commit's hour
+    const hour = d.hourFrac;
+    d3.select(this).style('fill', hour < 6 || hour >= 18 ? '#4477AA' : '#DD7733');
+    // Restore fill opacity and remove selected class
+    d3.select(this).style('fill-opacity', 0.7);
+    d3.select(this).classed('selected', false);
+  });
+
 
   const tickValues = [];
   let currentTick = d3.min(filteredCommits, d => d.datetime);
@@ -249,8 +256,12 @@ function updateTooltipPosition(event) {
 
 function brushSelector() {
   const svg = d3.select('#chart svg');
-  svg.call(d3.brush().on('brush end', brushed));
+  const brush = d3.brush().on('brush end', brushed);
+  svg.call(brush);
+  // Bring the dots group to the front so it receives mouse events
+  svg.select('.dots').raise();
 }
+
 
 function brushed(evt) {
   const brushSelection = evt.selection;
