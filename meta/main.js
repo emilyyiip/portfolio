@@ -73,7 +73,7 @@ function processCommits() {
       let { author, date, time, timezone, datetime } = first;
       let ret = {
         id: commit,
-        url: 'https://github.com/ClemHubble/portfolio/commit/' + commit,
+        url: 'https://github.com/emilyyiip/portfolio/commit/' + commit,
         author,
         date,
         time,
@@ -421,7 +421,7 @@ function commitNarrative(commit, index) {
           ${commit.datetime.toLocaleString("en", { dateStyle: "full", timeStyle: "short" })}
         </a>, 
         I edited ${commit.totalLines} lines across ${fileCount} ${fileCount === 1 ? 'file' : 'files'}.
-        After making these changes, I reviewed the progress and felt a sense of accomplishment with what I had achieved.
+        I made some cool changes today.
       </p>
     `;
   }
@@ -435,7 +435,7 @@ function commitNarrative2(commit, index) {
         ${commit.datetime.toLocaleString("en", { dateStyle: "full", timeStyle: "short" })}
       </a>,
       I edited ${commit.totalLines} lines across ${fileCount} ${fileCount === 1 ? 'file' : 'files'}.
-      It was a meaningful step forward in shaping the project.
+      I made nice changes.
     </p>
   `;
 }
