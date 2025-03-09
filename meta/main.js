@@ -1,14 +1,23 @@
-// meta.js
 let data = [];
-let commits = [];
+let commits = [];                   
 let xScale, yScale;
 let selectedCommits = [];
 let filteredCommits = [];
-let commitProgress = 100;
-let timeScale;
+let lines = filteredCommits.flatMap((d) => d.lines);
+let files = [];
 
-const width = 1000;
-const height = 600;
+let NUM_ITEMS;
+let ITEM_HEIGHT = 150;             
+let VISIBLE_COUNT = 20;             
+let totalHeight;
+
+const scrollContainer = d3.select('#scroll-container');
+const spacer = d3.select('#spacer');
+const itemsContainer = d3.select('#items-container');
+
+const scrollContainer2 = d3.select('#scroll-container-2');
+const spacer2 = d3.select('#spacer-2');
+const itemsContainer2 = d3.select('#items-container-2');
 
 async function loadData() {
   data = await d3.csv('loc.csv', (row) => ({
@@ -20,99 +29,332 @@ async function loadData() {
     datetime: new Date(row.datetime),
   }));
 
-  processCommits();
-
-  // Create timeScale mapping commit datetime to a 0-100 range.
-  timeScale = d3.scaleTime()
-    .domain(d3.extent(commits, d => d.datetime))
-    .range([0, 100]);
-
-  // Update the timeline display and filter commits by time.
-  updateTimeDisplay();
-
+  processCommits();         
   displayStats();
-  updateScatterplot(commits);
-  displayCommitFiles(commits);
-  initScrollytelling();
+  updateScatterplot(filteredCommits);
+  brushSelector();
+
+  NUM_ITEMS = commits.length;                    
+  totalHeight = (NUM_ITEMS - VISIBLE_COUNT) * ITEM_HEIGHT; 
+  spacer.style('height', `${totalHeight}px`)
+    .style('display', 'block')  
+    .style('opacity', '0');     
+
+  spacer2.style('height', `${totalHeight}px`)
+    .style('display', 'block') 
+    .style('opacity', '0');    
+
+  renderItems(0);
+  renderItems2(0);
 }
 
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadData();
+  
+  scrollContainer.on('scroll', () => {
+    const scrollTop = scrollContainer.property('scrollTop');
+    let startIndex = Math.floor(scrollTop / ITEM_HEIGHT);
+    startIndex = Math.max(0, Math.min(startIndex, commits.length - VISIBLE_COUNT));
+    renderItems(startIndex);
+  });
+  scrollContainer2.on('scroll', () => {
+    const scrollTop = scrollContainer2.property('scrollTop');
+    let startIndex = Math.floor(scrollTop / ITEM_HEIGHT);
+    startIndex = Math.max(0, Math.min(startIndex, commits.length - VISIBLE_COUNT));
+    renderItems2(startIndex);
+  });
+});
+
 function processCommits() {
-  const commitMap = new Map();
+  commits = d3
+    .groups(data, (d) => d.commit)
+    .map(([commit, lines]) => {
+      let first = lines[0];
+      let { author, date, time, timezone, datetime } = first;
+      let ret = {
+        id: commit,
+        url: 'https://github.com/ClemHubble/portfolio/commit/' + commit,
+        author,
+        date,
+        time,
+        timezone,
+        datetime,
+        hourFrac: datetime.getHours() + datetime.getMinutes() / 60,
+        totalLines: lines.length,
+      };
+      Object.defineProperty(ret, 'lines', {
+        value: lines,
+        configurable: true, 
+        writable: false, 
+        enumerable: true, 
+      });
+      return ret;
+    });
 
-  // Group raw data by commit hash and compute summary stats.
-  commits = d3.groups(data, d => d.commit).map(([commit, lines]) => {
-    let first = lines[0];
-    let { author, date, time, timezone, datetime } = first;
-    let totalChanges = lines.length;
-    let additions = totalChanges;
-    let deletions = 0;
+  commits.sort((a, b) => a.datetime - b.datetime);
+}
 
-    // Track cumulative file-length changes across commits.
-    for (const entry of lines) {
-      const prevLength = commitMap.get(entry.file) || 0;
-      const lengthDiff = prevLength - entry.length;
-      if (lengthDiff > 0) {
-        deletions += lengthDiff;
-      }
-      commitMap.set(entry.file, entry.length);
-    }
+function displayStats() {
+  const statsContainer = d3.select('#stats');
+  statsContainer.html(''); 
 
-    return {
-      id: commit,
-      url: `https://github.com/emilyyiip/portfolio/commit/${commit}`,
-      author,
-      date,
-      time,
-      timezone,
-      datetime,
-      hourFrac: datetime.getHours() + datetime.getMinutes() / 60,
-      totalLines: totalChanges,
-      additions,
-      deletions,
-      // Keep the original lines for file visualization.
-      lines: lines
-    };
+  statsContainer.append('h2').text('Summary');
+  
+  const dl = d3.select('#stats').append('dl').attr('class', 'stats');
+
+  dl.append('dt').html('Total <abbr title="Lines of code">LOC</abbr>');
+  dl.append('dd').text(data.length);
+
+  dl.append('dt').text('Total commits');
+  dl.append('dd')
+    .attr('id', 'commit-count')
+    .text(commits.length);
+
+  const averageFileLength = d3.mean(data, d => d.length);
+  dl.append('dt').html('Average <abbr title="Lines of code">LOC</abbr>');
+  dl.append('dd').text(averageFileLength.toFixed(2));
+
+  const numberOfFiles = d3.rollup(data, v => v.length, d => d.file).size;
+  dl.append('dt').text('Number of files');
+  dl.append('dd').text(numberOfFiles);
+
+  const totalMinutes = d3.sum(data, d => {
+    const pstHour = (d.datetime.getUTCHours() - 8 + 24) % 24; 
+    return pstHour * 60 + d.datetime.getUTCMinutes();
+  });
+  const averageMinutes = totalMinutes / data.length;
+  const averageHour = Math.floor(averageMinutes / 60);
+  const averageMinute = Math.round(averageMinutes % 60);
+  const period = averageHour >= 12 ? 'PM' : 'AM';
+  const formattedHour = averageHour % 12 || 12;
+
+  dl.append('dt').text('Average commit time');
+  dl.append('dd').text(`${formattedHour}:${averageMinute.toString().padStart(2, '0')} ${period} PST`);
+
+  const dayOfWeek = d3.rollup(data, v => v.length, d => d.datetime.getDay());
+  const mostCommonDayOfWeek = Array.from(dayOfWeek).reduce((a, b) => a[1] > b[1] ? a : b)[0];
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  dl.append('dt').text('Most active day of week');
+  dl.append('dd').text(days[mostCommonDayOfWeek]);
+}
+
+function updateFiles() {
+  const allLines = filteredCommits.flatMap(d => d.lines);
+
+  files = d3
+    .groups(allLines, d => d.file)
+    .map(([name, lines]) => ({ name, lines }));
+  
+  const container = d3.select('.files');
+  container.selectAll('*').remove();
+
+  let fileTypeColors = d3.scaleOrdinal(d3.schemeTableau10);
+
+  files.forEach(file => {
+    container.append('dt')
+      .html(`<code>${file.name}</code><small>${file.lines.length} lines</small>`);
+    
+    const dd = container.append('dd');
+    
+    dd.selectAll('div')
+      .data(file.lines)
+      .enter()
+      .append('div')
+      .attr('class', 'line')
+      .style('background', d => fileTypeColors(d.type));
   });
 }
 
-// ---------- TIMELINE FILTERING (Step 1) ----------
+function updateScatterplot(filteredCommits) {
+  d3.select('svg').remove();
 
-// Called whenever the slider moves.
-function updateTimeDisplay() {
-  const timeSlider = document.getElementById('time-slider');
-  commitProgress = Number(timeSlider.value);
-  const selectedTime = timeScale.invert(commitProgress);
-  document.getElementById('selectedTime').textContent = selectedTime.toLocaleString();
-  filterCommitsByTime();
+  const width = 1000;
+  const height = 600;
+
+  const svg = d3
+    .select('#chart')
+    .append('svg')
+    .attr('viewBox', `0 0 ${width} ${height}`)
+    .style('overflow', 'visible');
+
+  const margin = { top: 10, right: 10, bottom: 50, left: 40 };
+
+  const usableArea = {
+    top: margin.top,
+    right: width - margin.right,
+    bottom: height - margin.bottom,
+    left: margin.left,
+    width: width - margin.left - margin.right,
+    height: height - margin.top - margin.bottom,
+  };
+
+  xScale = d3
+    .scaleTime()
+    .domain(d3.extent(filteredCommits, (d) => d.datetime))
+    .range([usableArea.left, usableArea.right])
+    .nice();
+
+  yScale = d3.scaleLinear().domain([0, 24]).range([usableArea.height, usableArea.top]);
+
+  const [minLines, maxLines] = d3.extent(filteredCommits, (d) => d.totalLines);
+
+  const rScale = d3
+    .scaleSqrt()
+    .domain([minLines, maxLines])
+    .range([2, 30]);
+
+  const gridlines = svg
+    .append('g')
+    .attr('class', 'gridlines')
+    .attr('transform', `translate(${usableArea.left}, 0)`);
+
+  gridlines.call(d3.axisLeft(yScale).tickFormat('').tickSize(-usableArea.width));
+
+  const dots = svg.append('g').attr('class', 'dots');
+
+  dots
+    .selectAll('circle')
+    .data(filteredCommits)
+    .join('circle')
+    .attr('cx', (d) => xScale(d.datetime))
+    .attr('cy', (d) => yScale(d.hourFrac))
+    .attr('r', (d) => rScale(d.totalLines))
+    .attr('fill', '#1f77b4') 
+    .style('fill', (d) => {
+        const hour = d.hourFrac;
+        return hour < 6 || hour >= 18 ? '#4477AA' : '#DD7733';
+    })
+    .style('fill-opacity', 0.7) 
+    .style('stroke-width', 1.5)
+    .on('mouseover', function (event, d) {
+        d3.select(this).style('fill', '#ff6b6b');
+    })
+    .on('mouseout', function (event, d) {
+        const hour = d.hourFrac;
+        d3.select(this).style('fill', hour < 6 || hour >= 18 ? '#4477AA' : '#DD7733');
+    });
+
+  const tickValues = [];
+  let currentTick = d3.min(filteredCommits, (d) => d.datetime);
+
+  while (currentTick < d3.max(filteredCommits, (d) => d.datetime)) {
+    tickValues.push(currentTick);
+    currentTick = d3.timeDay.offset(currentTick, 2); 
+  }
+
+  const xAxis = d3.axisBottom(xScale)
+    .tickValues(tickValues)  
+    .tickFormat(d3.timeFormat('%b %d'));  
+
+  const yAxis = d3
+    .axisLeft(yScale)
+    .tickFormat((d) => String(d % 24).padStart(2, '0') + ':00');
+
+  svg
+    .append('g')
+    .attr('transform', `translate(0, ${usableArea.bottom})`)
+    .call(xAxis)
+    .style('font-family', 'Arial, sans-serif')  
+    .style('font-size', '12px')
+    .style('stroke', '#999'); 
+
+  svg
+    .append('g')
+    .attr('transform', `translate(${usableArea.left}, 0)`)
+    .call(yAxis)
+    .style('font-family', 'Arial, sans-serif') 
+    .style('font-size', '12px')
+    .style('stroke', '#999'); 
+
+  let tooltipTimeout; 
+
+  dots.selectAll('circle')
+    .on('mouseenter', function (event) {
+      const commit = this.__data__; 
+      updateTooltipContent(commit);
+      updateTooltipVisibility(true);
+      updateTooltipPosition(event);
+      d3.select(event.currentTarget).style('fill-opacity', 1); 
+      d3.select(event.currentTarget).classed('selected', true);
+
+      clearTimeout(tooltipTimeout); 
+    })
+    .on('mousemove', (event) => {
+      updateTooltipPosition(event);
+    })
+    .on('mouseleave', (event) => {
+      tooltipTimeout = setTimeout(() => {
+        updateTooltipVisibility(false); 
+      }, 200); 
+      d3.select(event.currentTarget).style('fill-opacity', 0.7); 
+      d3.select(event.currentTarget).classed('selected', false);
+    });
+
+  const tooltip = document.getElementById('commit-tooltip');
+  
+  tooltip.addEventListener('mouseenter', () => {
+    clearTimeout(tooltipTimeout); 
+  });
+  
+  tooltip.addEventListener('mouseleave', () => {
+    updateTooltipVisibility(false); 
+  });
 }
 
-// Filter commits by the current maximum time.
-function filterCommitsByTime() {
-  const commitMaxTime = timeScale.invert(commitProgress);
-  filteredCommits = commits.filter(d => d.datetime <= commitMaxTime);
-  updateScatterplot(filteredCommits);
-  displayCommitFiles(filteredCommits);
+function updateTooltipContent(commit) {
+  const link = document.getElementById('commit-link');
+  const date = document.getElementById('commit-date');
+  const time = document.getElementById('commit-time');
+
+  if (!commit || !commit.id) {
+    link.textContent = '';
+    link.removeAttribute('href');
+    date.textContent = '';
+    time.textContent = '';
+    return;
+  }
+
+  link.href = commit.url;
+  link.textContent = commit.id;
+  date.textContent = commit.datetime?.toLocaleString('en', {
+    dateStyle: 'full',
+  });
+  time.textContent = commit.datetime?.toLocaleString('en', {
+    timeStyle: 'short',
+  });
 }
 
-// ---------- BRUSH LOGIC (Step 0 cleanup) ----------
+function updateTooltipVisibility(isVisible) {
+  const tooltip = document.getElementById('commit-tooltip');
+  tooltip.hidden = !isVisible;
+}
 
-function brushed(event) {
-  const brushSelection = event.selection; // or null if empty
+function updateTooltipPosition(event) {
+  const tooltip = document.getElementById('commit-tooltip');
+  tooltip.style.left = `${event.clientX + 10}px`; 
+  tooltip.style.top = `${event.clientY + 10}px`; 
+}
 
-  // Update the selectedCommits array based on brush.
+function brushSelector() {
+  const svg = document.querySelector('svg');
+  d3.select(svg).call(d3.brush());
+
+  d3.select(svg).selectAll('.dots, .overlay ~ *').raise();
+  d3.select(svg).call(d3.brush().on('start brush end', brushed));
+}
+
+function brushed(evt) {
+  let brushSelection = evt.selection;
   selectedCommits = !brushSelection
     ? []
-    : commits.filter(commit => {
-        const min = { x: brushSelection[0][0], y: brushSelection[0][1] };
-        const max = { x: brushSelection[1][0], y: brushSelection[1][1] };
-        const x = xScale(commit.datetime);
-        const y = yScale(commit.hourFrac);
-        return x >= min.x && x <= max.x && y >= min.y && y <= max.y;
-      });
+    : filteredCommits.filter((commit) => {
+        let min = { x: brushSelection[0][0], y: brushSelection[0][1] };
+        let max = { x: brushSelection[1][0], y: brushSelection[1][1] };
+        let x = xScale(commit.datetime);
+        let y = yScale(commit.hourFrac);
 
-  updateSelection();
-  updateSelectionCount();
-  updateLanguageBreakdown(selectedCommits);
+        return x >= min.x && x <= max.x && y <= max.y;
+      });
 }
 
 function isCommitSelected(commit) {
@@ -120,319 +362,155 @@ function isCommitSelected(commit) {
 }
 
 function updateSelection() {
-  // Update circle styles based on selection.
-  d3.selectAll('circle')
-    .classed('selected', d => isCommitSelected(d))
-    .style('fill', d =>
-      isCommitSelected(d)
-        ? '#ff6b6b'
-        : d.hourFrac < 6 || d.hourFrac >= 18
-        ? '#4477AA'
-        : '#DD7733'
-    );
+  d3.selectAll('circle').classed('selected', (d) => isCommitSelected(d));
 }
 
 function updateSelectionCount() {
+  const selectedCommits = brushSelection
+    ? filteredCommits.filter(isCommitSelected)
+    : [];
+
   const countElement = document.getElementById('selection-count');
-  if (!countElement) return;
-  countElement.textContent =
-    selectedCommits.length === 0
-      ? 'No commits selected'
-      : `${selectedCommits.length} commits selected`;
+  countElement.textContent = `${
+    selectedCommits.length || 'No'
+  } commits selected`;
+
+  return selectedCommits;
 }
 
-function updateLanguageBreakdown(selectedCommits) {
+function updateLanguageBreakdown() {
+  const selectedCommits = brushSelection
+    ? filteredCommits.filter(isCommitSelected)
+    : [];
   const container = document.getElementById('language-breakdown');
-  if (!container) return;
-  if (!selectedCommits || selectedCommits.length === 0) {
+
+  if (selectedCommits.length === 0) {
     container.innerHTML = '';
     return;
   }
-  const selectedLines = data.filter(d =>
-    selectedCommits.some(commit => commit.id === d.commit)
+  const requiredCommits = selectedCommits.length ? selectedCommits : filteredCommits;
+  const lines = requiredCommits.flatMap((d) => d.lines);
+
+  const breakdown = d3.rollup(
+    lines,
+    (v) => v.length,
+    (d) => d.type
   );
-  const breakdown = d3.rollup(selectedLines, v => v.length, d => d.type);
+
   container.innerHTML = '';
+
   for (const [language, count] of breakdown) {
-    const proportion = count / selectedLines.length;
+    const proportion = count / lines.length;
     const formatted = d3.format('.1~%')(proportion);
-    container.innerHTML += `<dt>${language}</dt><dd>${count} lines (${formatted})</dd>`;
+
+    container.innerHTML += `
+            <dt>${language}</dt>
+            <dd>${count} lines (${formatted})</dd>
+        `;
   }
+
   return breakdown;
 }
 
-// ---------- SCATTERPLOT (Updated to use filteredCommits) ----------
-
-function updateScatterplot(filteredCommits) {
-  d3.select('#chart svg').remove();
-
-  const scatterWidth = 800;
-  const scatterHeight = 400;
-  const margin = { top: 20, right: 30, bottom: 40, left: 50 };
-  const usableArea = {
-    top: margin.top,
-    right: scatterWidth - margin.right,
-    bottom: scatterHeight - margin.bottom,
-    left: margin.left,
-    width: scatterWidth - margin.left - margin.right,
-    height: scatterHeight - margin.top - margin.bottom,
-  };
-
-  const svg = d3.select('#chart')
-    .append('svg')
-    .attr('viewBox', `0 0 ${scatterWidth} ${scatterHeight}`)
-    .style('overflow', 'visible');
-
-  xScale = d3.scaleTime()
-    .domain(d3.extent(filteredCommits, d => d.datetime))
-    .range([usableArea.left, usableArea.right])
-    .nice();
-  yScale = d3.scaleLinear()
-    .domain([24, 0])
-    .range([usableArea.bottom, usableArea.top]);
-
-  // Gridlines
-  svg.append('g')
-    .attr('class', 'gridlines')
-    .attr('transform', `translate(${usableArea.left}, 0)`)
-    .call(d3.axisLeft(yScale).tickSize(-usableArea.width).tickFormat(''))
-    .style('color', '#ccc')
-    .style('opacity', 0.3)
-    .call(g => {
-      g.selectAll('.domain').remove();
-      g.selectAll('line').style('stroke-dasharray', '2,2');
-    });
-
-  // Axes
-  const xAxis = d3.axisBottom(xScale).tickFormat(d3.timeFormat('%b %d'));
-  const yAxis = d3.axisLeft(yScale)
-    .tickFormat(d => d === 24 ? '24' : String(d).padStart(2, '0') + ':00')
-    .ticks(12);
-
-  svg.append('g')
-    .attr('class', 'x-axis')
-    .attr('transform', `translate(0, ${usableArea.bottom})`)
-    .call(xAxis)
-    .select('.domain')
-    .style('stroke', '#000');
-
-  svg.append('g')
-    .attr('class', 'y-axis')
-    .attr('transform', `translate(${usableArea.left}, 0)`)
-    .call(yAxis)
-    .select('.domain')
-    .style('stroke', '#000');
-
-  // Tooltip helper functions
-  function updateTooltipContent(commit) {
-    const tooltip = document.getElementById('commit-tooltip');
-    const link = document.getElementById('commit-link');
-    const dateEl = document.getElementById('commit-date');
-    if (!commit || Object.keys(commit).length === 0) {
-      if (tooltip) tooltip.hidden = true;
-      return;
-    }
-    if (tooltip) tooltip.hidden = false;
-    if (link) {
-      link.href = commit.url;
-      link.textContent = commit.id;function displayCommitFiles(filteredCommits) {
-        // Extract all lines from the filtered commits
-        const lines = filteredCommits.flatMap(d => d.lines);
-        
-        // Create an ordinal scale for file types (technologies)
-        let fileTypeColors = d3.scaleOrdinal(d3.schemeTableau10);
-        
-        // Group lines by file and create an array of file objects
-        let files = d3.groups(lines, d => d.file)
-          .map(([name, lines]) => ({ name, lines }));
-        
-        // Sort files by number of lines (descending)
-        files = d3.sort(files, d => -d.lines.length);
-        
-        // Clear any existing file visualization
-        d3.select('.files').selectAll('div').remove();
-        
-        // Bind the files data to new container divs
-        let filesContainer = d3.select('.files')
-          .selectAll('div')
-          .data(files)
-          .enter()
-          .append('div');
-        
-        // Append a <dt> for the file name and total lines.
-        // We include a <small> element for the line count.
-        filesContainer.append('dt')
-          .html(d => `<code>${d.name}</code><small>${d.lines.length} lines</small>`);
-        
-        // Append a <dd> that will contain one dot per line.
-        // Here we bind each line (data point) to a new <div class="line">
-        filesContainer.append('dd')
-          .selectAll('div')
-          .data(d => d.lines)
-          .enter()
-          .append('div')
-          .attr('class', 'line')
-          .style('background', d => fileTypeColors(d.type));
-      }
-      
-    }
-    if (dateEl) {
-      dateEl.textContent = commit.datetime.toLocaleString('en', { dateStyle: 'full' });
-    }
-  }
-  function updateTooltipVisibility(isVisible) {
-    const tooltip = document.getElementById('commit-tooltip');
-    if (!tooltip) return;
-    if (isVisible) tooltip.classList.add('visible');
-    else tooltip.classList.remove('visible');
-  }
-  function updateTooltipPosition(event) {
-    const tooltip = document.getElementById('commit-tooltip');
-    if (!tooltip) return;
-    tooltip.style.left = `${event.clientX + 10}px`;
-    tooltip.style.top = `${event.clientY + 10}px`;
+function commitNarrative(commit, index) {
+    const fileCount = Array.from(new Set(commit.lines.map(line => line.file))).length;
+  
+    return `
+      <p>
+        On <a href="${commit.url}" target="_blank">
+          ${commit.datetime.toLocaleString("en", { dateStyle: "full", timeStyle: "short" })}
+        </a>, 
+        I edited ${commit.totalLines} lines across ${fileCount} ${fileCount === 1 ? 'file' : 'files'}.
+        After making these changes, I reviewed the progress and felt a sense of accomplishment with what I had achieved.
+      </p>
+    `;
   }
 
-  // Circle radius scale
-  const [minLines, maxLines] = d3.extent(filteredCommits, d => d.totalLines);
-  const rScale = d3.scaleSqrt().domain([minLines, maxLines]).range([2, 30]);
-  const sortedCommits = d3.sort(filteredCommits, d => -d.totalLines);
-  const dots = svg.append('g').attr('class', 'dots');
+function commitNarrative2(commit, index) {
+  const fileCount = Array.from(new Set(commit.lines.map(line => line.file))).length;
 
-  dots.selectAll('circle')
-    .data(sortedCommits)
-    .join('circle')
-    .attr('cx', d => xScale(d.datetime))
-    .attr('cy', d => yScale(d.hourFrac))
-    .attr('r', d => rScale(d.totalLines))
-    .style('fill', d =>
-      d.hourFrac < 6 || d.hourFrac >= 18 ? '#4477AA' : '#DD7733'
-    )
-    .style('fill-opacity', 0.7)
-    .on('mouseenter', (event, d) => {
-      updateTooltipContent(d);
-      updateTooltipVisibility(true);
-      updateTooltipPosition(event);
-      d3.select(event.currentTarget).style('fill-opacity', 1);
-    })
-    .on('mousemove', (event) => {
-      updateTooltipPosition(event);
-    })
-    .on('mouseleave', (event) => {
-      updateTooltipContent({});
-      updateTooltipVisibility(false);
-      d3.select(event.currentTarget).style('fill-opacity', 0.7);
-    });
-
-  // Attach brush
-  brushSelector(svg, usableArea);
-}
-
-function brushSelector(svg, usableArea) {
-  const brush = d3.brush()
-    .extent([[usableArea.left, usableArea.top], [usableArea.right, usableArea.bottom]])
-    .on('brush end', brushed);
-  svg.append('g').attr('class', 'brush').call(brush);
-}
-
-function displayStats() {
-  processCommits();
-  const dl = d3.select('#stats').append('dl').attr('class', 'stats');
-  dl.append('dt').html('Total <abbr title="Lines of code">LOC</abbr>');
-  dl.append('dd').text(data.length);
-  dl.append('dt').text('Total commits');
-  dl.append('dd').text(commits.length);
-  dl.append('dt').text('Number of files');
-  dl.append('dd').text(d3.group(data, d => d.file).size);
-}
-
-// ---------- UNIT VISUALIZATION FOR FILES (Step 2) ----------
-function displayCommitFiles(filteredCommits) {
-  // Extract all lines from the filtered commits
-  const lines = filteredCommits.flatMap(d => d.lines);
-  
-  // Create an ordinal scale for file types (technologies)
-  let fileTypeColors = d3.scaleOrdinal(d3.schemeTableau10);
-  
-  // Group lines by file and create an array of file objects
-  let files = d3.groups(lines, d => d.file)
-    .map(([name, lines]) => ({ name, lines }));
-  
-  // Sort files by number of lines (descending)
-  files = d3.sort(files, d => -d.lines.length);
-  
-  // Clear any existing file visualization
-  d3.select('.files').selectAll('div').remove();
-  
-  // Bind the files data to new container divs
-  let filesContainer = d3.select('.files')
-    .selectAll('div')
-    .data(files)
-    .enter()
-    .append('div');
-  
-  // Append a <dt> for the file name and total lines.
-  // We include a <small> element for the line count.
-  filesContainer.append('dt')
-    .html(d => `<code>${d.name}</code><small>${d.lines.length} lines</small>`);
-  
-  // Append a <dd> that will contain one dot per line.
-  // Here we bind each line (data point) to a new <div class="line">
-  filesContainer.append('dd')
-    .selectAll('div')
-    .data(d => d.lines)
-    .enter()
-    .append('div')
-    .attr('class', 'line')
-    .style('background', d => fileTypeColors(d.type));
-}
-
-
-// ---------- SCROLLY: Commits Over Time (Step 3) ----------
-
-let ITEM_HEIGHT = 50;      // Height per commit item (adjust as needed)
-let VISIBLE_COUNT = 10;    // Number of commit items visible at once
-
-function initScrollytelling() {
-  const scrollContainer = d3.select('#scroll-container');
-  const spacer = d3.select('#spacer');
-  spacer.style('height', `${(commits.length - 1) * ITEM_HEIGHT}px`);
-  const itemsContainer = d3.select('#items-container');
-
-  scrollContainer.on('scroll', () => {
-    const scrollTop = scrollContainer.property('scrollTop');
-    let startIndex = Math.floor(scrollTop / ITEM_HEIGHT);
-    startIndex = Math.max(0, Math.min(startIndex, commits.length - VISIBLE_COUNT));
-    renderItems(startIndex);
-  });
-  renderItems(0);
+  return `
+    <p>
+      On <a href="${commit.url}" target="_blank">
+        ${commit.datetime.toLocaleString("en", { dateStyle: "full", timeStyle: "short" })}
+      </a>,
+      I edited ${commit.totalLines} lines across ${fileCount} ${fileCount === 1 ? 'file' : 'files'}.
+      It was a meaningful step forward in shaping the project.
+    </p>
+  `;
 }
 
 function renderItems(startIndex) {
-  const itemsContainer = d3.select('#items-container');
   itemsContainer.selectAll('div').remove();
-  const endIndex = Math.min(startIndex + VISIBLE_COUNT, commits.length);
-  let newCommitSlice = commits.slice(startIndex, endIndex);
   
-  // Optionally, update the scatterplot to reflect only these commits:
+  const commitsToRender = filteredCommits.length > 0 ? filteredCommits : commits;
+  
+  const endIndex = Math.min(startIndex + VISIBLE_COUNT, commitsToRender.length);
+  let newCommitSlice = commitsToRender.slice(startIndex, endIndex);
+  
   updateScatterplot(newCommitSlice);
-
+  
   itemsContainer.selectAll('div')
     .data(newCommitSlice)
     .enter()
     .append('div')
-    .html((d, i) => {
-      return `<p>
-        On ${d.datetime.toLocaleString('en', { dateStyle: 'full', timeStyle: 'short' })}, I made 
-        <a href="${d.url}" target="_blank">${i > 0 ? 'another glorious commit' : 'my first commit, and it was glorious'}</a>.
-        I edited ${d.totalLines} lines.
-      </p>`;
-    })
+    .html((commit, index) => commitNarrative(commit, index)) 
     .style('position', 'absolute')
-    .style('top', (_, idx) => `${idx * ITEM_HEIGHT}px`);
+    .style('top', (_, idx) => `${(startIndex + idx) * ITEM_HEIGHT}px`); 
 }
+  
 
-document.addEventListener('DOMContentLoaded', async () => {
-  await loadData();
-  document.getElementById('time-slider').addEventListener('input', updateTimeDisplay);
-});
+function renderItems2(startIndex) {
+  itemsContainer2.selectAll('div').remove();
+  
+  const commitsToRender = filteredCommits.length > 0 ? filteredCommits : commits;
+  
+  const endIndex = Math.min(startIndex + VISIBLE_COUNT, commitsToRender.length);
+  let newCommitSlice = commitsToRender.slice(startIndex, endIndex);
+
+  displayCommitFiles(newCommitSlice, '#chart-2');
+
+  itemsContainer2.selectAll('div')
+      .data(newCommitSlice)
+      .enter()
+      .append('div')
+      .html((commit, index) => commitNarrative2(commit, index)) 
+      .style('position', 'absolute')
+      .style('top', (_, idx) => `${(startIndex + idx) * ITEM_HEIGHT}px`); 
+}
+  
+
+function displayCommitFiles(commitSlice, containerSelector = '.files') {
+  const types = Array.from(new Set(data.map(d => d.type))).sort();
+  const fileTypeColors = d3.scaleOrdinal()
+                           .domain(types)
+                           .range(d3.schemeTableau10);
+
+  const lines = commitSlice.flatMap(d => d.lines);
+  let files = d3.groups(lines, d => d.file)
+                .map(([name, lines]) => ({ name, lines }));
+  files = d3.sort(files, (a, b) => b.lines.length - a.lines.length);
+
+  d3.select(containerSelector).selectAll('div').remove();
+
+  let filesContainer = d3.select(containerSelector)
+                         .selectAll('div')
+                         .data(files)
+                         .enter()
+                         .append('div')
+                         .style('display', 'block')
+                         .style('margin-bottom', '1em');
+
+  filesContainer.append('dt')
+                .html(d => `<code>${d.name}</code><br><small>${d.lines.length} lines</small>`);
+
+  filesContainer.append('dd')
+                .style('display', 'flex')
+                .style('flex-wrap', 'wrap')
+                .selectAll('div')
+                .data(d => d.lines)
+                .enter()
+                .append('div')
+                .attr('class', 'line')
+                .style('background', d => fileTypeColors(d.type));
+}
