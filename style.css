@@ -272,6 +272,10 @@ transform-box: fill-box;
 circle:hover {
 transform: scale(1.5);
 }
+.dots circle {
+  pointer-events: all;
+}
+
 .selection {
 fill-opacity: 0.1;
 stroke: black;
