@@ -236,11 +236,7 @@ function updateTooltipContent(commit) {
     link.removeAttribute('href');
     dateEl.textContent = '';
     return;
-  }
-  link.href = commit.url;
-  link.textContent = commit.id;
-  dateEl.textContent = commit.datetime.toLocaleString('en', { dateStyle: 'full' });
-}
+  } 
 
 function updateTooltipVisibility(isVisible) {
   const tooltip = document.getElementById('commit-tooltip');
