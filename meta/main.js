@@ -239,15 +239,6 @@ function updateTooltipContent(commit) {
   }
   link.href = commit.url;
   link.textContent = commit.id;
-  // Display both the full date and the time in short format
-  dateEl.textContent = commit.datetime.toLocaleString('en', {
-    dateStyle: 'full',
-    timeStyle: 'short'
-  });
-}
-
-  link.href = commit.url;
-  link.textContent = commit.id;
   dateEl.textContent = commit.datetime.toLocaleString('en', { dateStyle: 'full' });
 }
 
