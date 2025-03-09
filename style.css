@@ -293,3 +293,54 @@ circle.selected {
   display: block;
   margin: 0 auto;
 }
+
+/* Style the <dl> container for files as a grid */
+.files {
+  display: grid;
+  grid-gap: 1em;
+  margin: 1em 0;
+}
+
+/* Each file entry (the div wrapping dt and dd) uses subgrid so dt and dd align */
+.files > div {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+/* Style the dt element (the file name and line count) */
+.files dt {
+  grid-column: 1;
+  font-weight: bold;
+}
+
+.files dt code {
+  background: #f5f5f5;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+}
+
+.files dt small {
+  display: block;
+  font-size: 0.8em;
+  color: #666;
+}
+
+/* Style the dd element: a flex container for dots */
+.files dd {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.15em;
+  padding-top: 0.6em;
+  margin-left: 0;
+}
+
+/* The dots representing each line */
+.line {
+  width: 0.5em;
+  aspect-ratio: 1;
+  background: steelblue; /* default, overridden inline by D3 */
+  border-radius: 50%;
+}
