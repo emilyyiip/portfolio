@@ -237,6 +237,7 @@ function updateTooltipContent(commit) {
     dateEl.textContent = '';
     return;
   } 
+}
 
 function updateTooltipVisibility(isVisible) {
   const tooltip = document.getElementById('commit-tooltip');
